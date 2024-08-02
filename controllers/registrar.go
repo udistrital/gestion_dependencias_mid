@@ -6,8 +6,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/udistrital/gestion_dependencias_mid/models"
 	"github.com/udistrital/gestion_dependencias_mid/services"
-	"github.com/udistrital/utils_oas/errorhandler"
-	"github.com/udistrital/utils_oas/requestresponse"
+	"github.com/udistrital/gestion_dependencias_mid/helpers"
 )
 
 // GestionDependenciasController operations for GestionDependencias
@@ -28,20 +27,23 @@ func (c *GestionDependenciasController) URLMapping(){
 // @Failure 400 the request contains incorrect syntax
 // @router /RegistrarDependencia [post]
 func (c *GestionDependenciasController) RegistrarDependencia() {
-	defer errorhandler.HandlePanic(&c.Controller)
-	var v models.NuevaDependencia
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil{
-		resultado, err := services.RegistrarDependencia(&v)
-		if err == nil {
-			c.Ctx.Output.SetStatus(200)
-			c.Data["json"] = requestresponse.APIResponseDTO(true, 200, resultado)
-		} else {
-			c.Ctx.Output.SetStatus(404)
-			c.Data["json"] = requestresponse.APIResponseDTO(true, 404, nil, err.Error())
-		}
+	defer helpers.ErrorController(c.Controller,"RegistrarDependencia")
+
+	if v, e := helpers.ValidarBody(c.Ctx.Input.RequestBody); !v || e != nil {
+		panic(map[string]interface{}{"funcion": "RegistrarDependencia", "err": helpers.ErrorBody, "status": "400"})
 	}
-	
 
+	var v models.NuevaDependencia
 
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
+		if resultado, err := services.RegistrarDependencia(&v); err == nil {
+			c.Ctx.Output.SetStatus(201)
+			c.Data["json"] = map[string]interface{}{"Success": true, "Status": 201, "Message": "Dependencia insertada con exito", "Data": resultado}
+		} else {
+			panic(err)
+		}
+	} else {
+		panic(map[string]interface{}{"funcion": "RegistrarDependencia", "err": err.Error(), "status": "400"})
+	}
 	c.ServeJSON()
 }
