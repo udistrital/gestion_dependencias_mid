@@ -1,135 +1,147 @@
 package services
 
 import (
-	"fmt"
 	"strconv"
+	"net/url"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/gestion_dependencias_mid/models"
 	"github.com/udistrital/utils_oas/request"
-	"github.com/astaxie/beego/logs"
-	"github.com/udistrital/utils_oas/time_bogota"
 )
 
-func RegistrarDependencia(transaccion *models.NuevaDependencia) (alerta []string, outputError map[string]interface{}){
+func BuscarDependencia(transaccion *models.BusquedaDependencia) (resultadoBusqueda []models.RespuestaBusquedaDependencia, outputError map[string]interface{}) {
 	defer func() {
 		if err := recover(); err != nil {
-			outputError = map[string]interface{}{"funcion": "RegistrarDependencia", "err": err, "status": "500"}
+			outputError = map[string]interface{}{"funcion": "BuscarDependencia", "err": err, "status": "500"}
 			panic(outputError)
 		}
 	}()
-	alerta = append(alerta, "Success")
-	var tipoDependencia models.TipoDependencia
-	url := beego.AppConfig.String("OikosCrudUrl") + "tipo_dependencia/" + strconv.Itoa(transaccion.TipoDependenciaId)
-	if err := request.GetJson(url,&tipoDependencia); err != nil || tipoDependencia.Id == 0{
-		logs.Error(err)
-		panic(err.Error())
-	}else{
-		fmt.Println(&tipoDependencia)
-		fmt.Println(err)
-	}
-	var dependenciaAsociada models.Dependencia
-	url = beego.AppConfig.String("OikosCrudUrl") + "dependencia/" + strconv.Itoa(transaccion.DependenciaAsociadaId)
-	if err := request.GetJson(url,&dependenciaAsociada); err != nil || dependenciaAsociada.Id == 0{
-		logs.Error(err)
-		panic(err.Error())
-	}
-	var creaciones models.Creaciones
-	var dependenciaNueva models.Dependencia
-	dependenciaNueva.Nombre = transaccion.Dependencia.Nombre
-	dependenciaNueva.CorreoElectronico = transaccion.Dependencia.CorreoElectronico
-	dependenciaNueva.TelefonoDependencia = transaccion.Dependencia.TelefonoDependencia
-	dependenciaNueva.Activo = true
-	dependenciaNueva.FechaCreacion = time_bogota.TiempoBogotaFormato()
-	dependenciaNueva.FechaModificacion = time_bogota.TiempoBogotaFormato()
-	var resDependenciaRegistrada map[string]interface{}
-	url = beego.AppConfig.String("OikosCrudUrl") + "dependencia"
-	if err := request.SendJson(url,"POST",&resDependenciaRegistrada,dependenciaNueva); err != nil{
-		logs.Error(err)
-		panic(err.Error())
-	}
-	fmt.Println("FUNCIONO REGISTRO DE DEPENDENCIA")
-	fmt.Println(resDependenciaRegistrada["Id"])
-	dependenciaNueva.Id = int(resDependenciaRegistrada["Id"].(float64))
-	creaciones.DependenciaId = 	int(resDependenciaRegistrada["Id"].(float64))
-	var dependenciaTipoDependenciaNueva models.DependenciaTipoDependencia
-	dependenciaTipoDependenciaNueva.TipoDependenciaId = &tipoDependencia
-	dependenciaTipoDependenciaNueva.DependenciaId = &dependenciaNueva
-	dependenciaTipoDependenciaNueva.Activo = true
-	dependenciaTipoDependenciaNueva.FechaCreacion = time_bogota.TiempoBogotaFormato()
-	dependenciaTipoDependenciaNueva.FechaModificacion = time_bogota.TiempoBogotaFormato()
-	url = beego.AppConfig.String("OikosCrudUrl") + "dependencia_tipo_dependencia"
-	var resDependenciaTipoDependenciaRegistrada map[string]interface{}
-	if err := request.SendJson(url,"POST",&resDependenciaTipoDependenciaRegistrada,dependenciaTipoDependenciaNueva); err != nil{
-		rollbackDependenciaCreada(&creaciones)
-		logs.Error(err)
-		panic(err.Error())
-	}
-	fmt.Println("FUNCIONO DEPENDENCIA TIPO DEPENDENCIA")
-	fmt.Println(resDependenciaTipoDependenciaRegistrada["Id"])
-	dependenciaTipoDependenciaNueva.Id = int(resDependenciaTipoDependenciaRegistrada["Id"].(float64))
-	creaciones.DependenciaTipoDependenciaId = int(resDependenciaTipoDependenciaRegistrada["Id"].(float64))
-	var depedencia_padre models.DependenciaPadre
-	depedencia_padre.PadreId = &dependenciaAsociada
-	depedencia_padre.HijaId = &dependenciaNueva
-	depedencia_padre.Activo = true
-	depedencia_padre.FechaCreacion = time_bogota.TiempoBogotaFormato()
-	depedencia_padre.FechaModificacion = time_bogota.TiempoBogotaFormato()
-	url = beego.AppConfig.String("OikosCrudUrl") + "dependencia_padre"
-	var resDependenciaPadre map[string]interface{}
-	if err := request.SendJson(url,"POST",&resDependenciaPadre,depedencia_padre);err != nil{
-		rollbackDependenciaTipoDependenciaCreada(&creaciones)
-		logs.Error(err)
-		panic(err.Error())
-	}
-	fmt.Println("FUNCIONO DEPENDENCIA PADRE")
-	fmt.Println(resDependenciaPadre["Id"])
 
-	return alerta, outputError
+	if transaccion.NombreDependencia != "" {
+		var dependenciasxNombre []models.Dependencia
+		nombreDependencia := url.QueryEscape(transaccion.NombreDependencia)
+		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia?query=Nombre:" + nombreDependencia
+		if err := request.GetJson(url, &dependenciasxNombre); err != nil {
+			logs.Error(err)
+			panic(err.Error())
+		}
+
+		for _, dependencia := range dependenciasxNombre {
+			resultado := crearRespuestaBusqueda(dependencia)
+			if !ExisteDependencia(resultadoBusqueda, resultado.Dependencia.Id) {
+				resultadoBusqueda = append(resultadoBusqueda, resultado)
+			}
+		}
+	}
+
+	if transaccion.TipoDependenciaId != 0 {
+		var dependenciaTipoDependencia []models.DependenciaTipoDependencia
+		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia_tipo_dependencia?query=TipoDependenciaId.Id:" + strconv.Itoa(transaccion.TipoDependenciaId) + "&limit=-1"
+		if err := request.GetJson(url, &dependenciaTipoDependencia); err != nil {
+			logs.Error(err)
+			panic(err.Error())
+		}
+
+		for _, dt := range dependenciaTipoDependencia {
+			resultado := crearRespuestaBusqueda(*dt.DependenciaId)
+			if !ExisteDependencia(resultadoBusqueda, resultado.Dependencia.Id) {
+				resultadoBusqueda = append(resultadoBusqueda, resultado)
+			}
+		}
+	}
+
+	if transaccion.FacultadId != 0{
+		var dependenciasxNombre []models.Dependencia
+		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia?query=Id:" + strconv.Itoa(transaccion.FacultadId)
+		if err := request.GetJson(url, &dependenciasxNombre); err != nil {
+			logs.Error(err)
+			panic(err.Error())
+		}
+
+		for _, dependencia := range dependenciasxNombre {
+			resultado := crearRespuestaBusqueda(dependencia)
+			if !ExisteDependencia(resultadoBusqueda, resultado.Dependencia.Id) {
+				resultadoBusqueda = append(resultadoBusqueda, resultado)
+			}
+		}
+	}
+
+	if transaccion.VicerrectoriaId != 0{
+		var dependenciasxNombre []models.Dependencia
+		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia?query=Id:" + strconv.Itoa(transaccion.VicerrectoriaId)
+		if err := request.GetJson(url, &dependenciasxNombre); err != nil {
+			logs.Error(err)
+			panic(err.Error())
+		}
+
+		for _, dependencia := range dependenciasxNombre {
+			resultado := crearRespuestaBusqueda(dependencia)
+			if !ExisteDependencia(resultadoBusqueda, resultado.Dependencia.Id) {
+				resultadoBusqueda = append(resultadoBusqueda, resultado)
+			}
+		}
+	}
+
+	if transaccion.BusquedaEstado != nil{
+		var dependenciasxNombre []models.Dependencia
+		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia?query=Activo:" + strconv.FormatBool(transaccion.BusquedaEstado.Estado) + "&limit=-1"
+		if err := request.GetJson(url, &dependenciasxNombre); err != nil {
+			logs.Error(err)
+			panic(err.Error())
+		}
+
+		for _, dependencia := range dependenciasxNombre {
+			resultado := crearRespuestaBusqueda(dependencia)
+			if !ExisteDependencia(resultadoBusqueda, resultado.Dependencia.Id) {
+				resultadoBusqueda = append(resultadoBusqueda, resultado)
+			}
+		}
+	}
+
+	return resultadoBusqueda, outputError
 }
 
-// func RegistrarDependencia(transaccion *models.NuevaDependencia) (alerta []string, outputError map[string]interface{}){
-// 	defer func() {
-// 		if err := recover(); err != nil {
-// 			outputError = map[string]interface{}{"funcion": "RegistrarDependencia", "err": err, "status": "500"}
-// 			panic(outputError)
-// 		}
-// 	}()
-// 	var creaciones models.Creaciones
-// 	creaciones.DependenciaId = 282
-// 	creaciones.DependenciaTipoDependenciaId = 433
-// 	creaciones.DependenciaPadreId = 225
-// 	rollbackDependenciaPadreCreada(&creaciones)
-// 	alerta = append(alerta, "Success")
-// 	return alerta, outputError
-// }
-
-func rollbackDependenciaCreada(transaccion *models.Creaciones) (outputError map[string]interface{}) {
-	var respuesta map[string]interface{}
-	url := beego.AppConfig.String("OikosCrudUrl") + "dependencia/" + strconv.Itoa(transaccion.DependenciaId)
-	if err := request.SendJson(url,"DELETE",&respuesta,nil); err != nil{
-		panic("Rollback de dependencia" + err.Error())
+func crearRespuestaBusqueda(dependencia models.Dependencia) models.RespuestaBusquedaDependencia {
+	var resultado models.RespuestaBusquedaDependencia
+	resultado.Dependencia = &dependencia
+	resultado.Estado = dependencia.Activo
+	if len(dependencia.DependenciaTipoDependencia) == 0{
+		var dependenciaAux []models.Dependencia
+		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia?query=Id:" +  strconv.Itoa(dependencia.Id) 
+		if err := request.GetJson(url, &dependenciaAux); err != nil {
+			logs.Error(err)
+			panic(err.Error())
+		}
+		dependencia = dependenciaAux[0]
 	}
-	return nil
+	tiposDependencia := make([]models.TipoDependencia, 0)
+	for _, dt := range dependencia.DependenciaTipoDependencia {
+		tipoDependencia := models.TipoDependencia{
+			Id:     dt.TipoDependenciaId.Id,
+			Nombre: dt.TipoDependenciaId.Nombre,
+		}
+		tiposDependencia = append(tiposDependencia, tipoDependencia)
+	}
+	resultado.TipoDependencia = &tiposDependencia
+
+	var dependenciaPadre []models.DependenciaPadre
+	url := beego.AppConfig.String("OikosCrudUrl") + "dependencia_padre?query=HijaId:" + strconv.Itoa(dependencia.Id)
+	if err := request.GetJson(url, &dependenciaPadre); err != nil {
+		logs.Error(err)
+		panic(err.Error())
+	}
+	if len(dependenciaPadre) > 0 {
+		resultado.DependenciaAsociada = dependenciaPadre[0].PadreId
+	}
+
+	return resultado
 }
 
-
-func rollbackDependenciaTipoDependenciaCreada(transaccion *models.Creaciones) (outputError map[string]interface{}) {
-	var respuesta map[string]interface{}
-	url := beego.AppConfig.String("OikosCrudUrl") + "dependencia_tipo_dependencia/" + strconv.Itoa(transaccion.DependenciaTipoDependenciaId)
-	if err := request.SendJson(url,"DELETE",&respuesta,nil); err != nil{
-		panic("Rollback de dependencia tipo dependencia" + err.Error())
+func ExisteDependencia(resultadoBusqueda []models.RespuestaBusquedaDependencia, dependenciaId int) bool {
+	for _, r := range resultadoBusqueda {
+		if r.Dependencia != nil && r.Dependencia.Id == dependenciaId {
+			return true
+		}
 	}
-	rollbackDependenciaCreada(transaccion)
-
-	return nil
-}
-
-func rollbackDependenciaPadreCreada(transaccion *models.Creaciones) (outputError map[string]interface{}) {
-	var respuesta map[string]interface{}
-	url := beego.AppConfig.String("OikosCrudUrl") + "dependencia_padre/" + strconv.Itoa(transaccion.DependenciaPadreId)
-	if err := request.SendJson(url,"DELETE",&respuesta,nil); err != nil{
-		panic("Rollback de dependencia padre" + err.Error())
-	}
-	rollbackDependenciaTipoDependenciaCreada(transaccion)
-	return nil
+	return false
 }

@@ -1,13 +1,11 @@
 package controllers
 
 import (
-	// "encoding/json"
-	"fmt"
-
+	"encoding/json"
 	"github.com/astaxie/beego"
-	// "github.com/udistrital/gestion_dependencias_mid/helpers"
-	// "github.com/udistrital/gestion_dependencias_mid/models"
-	// "github.com/udistrital/gestion_dependencias_mid/services"
+	"github.com/udistrital/gestion_dependencias_mid/helpers"
+	"github.com/udistrital/gestion_dependencias_mid/models"
+	"github.com/udistrital/gestion_dependencias_mid/services"
 )
 
 // RegistroDependenciasController operations for RegistroDependencias
@@ -28,24 +26,23 @@ func (c *RegistroDependenciasController) URLMapping(){
 // @Failure 400 the request contains incorrect syntax
 // @router /RegistrarDependencia [post]
 func (c *RegistroDependenciasController) RegistrarDependencia() {
-	fmt.Println("ENTRA A REGISTRO")
-	// defer helpers.ErrorController(c.Controller,"RegistrarDependencia")
+	defer helpers.ErrorController(c.Controller,"RegistrarDependencia")
 
-	// if v, e := helpers.ValidarBody(c.Ctx.Input.RequestBody); !v || e != nil {
-	// 	panic(map[string]interface{}{"funcion": "RegistrarDependencia", "err": helpers.ErrorBody, "status": "400"})
-	// }
+	if v, e := helpers.ValidarBody(c.Ctx.Input.RequestBody); !v || e != nil {
+		panic(map[string]interface{}{"funcion": "RegistrarDependencia", "err": helpers.ErrorBody, "status": "400"})
+	}
 
-	// var v models.NuevaDependencia
+	var v models.NuevaDependencia
 
-	// if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-	// 	if resultado, err := services.RegistrarDependencia(&v); err == nil {
-	// 		c.Ctx.Output.SetStatus(201)
-	// 		c.Data["json"] = map[string]interface{}{"Success": true, "Status": 201, "Message": "Dependencia insertada con exito", "Data": resultado}
-	// 	} else {
-	// 		panic(err)
-	// 	}
-	// } else {
-	// 	panic(map[string]interface{}{"funcion": "RegistrarDependencia", "err": err.Error(), "status": "400"})
-	// }
-	// c.ServeJSON()
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
+		if resultado, err := services.RegistrarDependencia(&v); err == nil {
+			c.Ctx.Output.SetStatus(201)
+			c.Data["json"] = map[string]interface{}{"Success": true, "Status": 201, "Message": "Dependencia insertada con exito", "Data": resultado}
+		} else {
+			panic(err)
+		}
+	} else {
+		panic(map[string]interface{}{"funcion": "RegistrarDependencia", "err": err.Error(), "status": "400"})
+	}
+	c.ServeJSON()
 }
