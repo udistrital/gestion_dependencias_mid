@@ -23,9 +23,6 @@ func RegistrarDependencia(transaccion *models.NuevaDependencia) (alerta []string
 	if err := request.GetJson(url,&tipoDependencia); err != nil || tipoDependencia.Id == 0{
 		logs.Error(err)
 		panic(err.Error())
-	}else{
-		fmt.Println(&tipoDependencia)
-		fmt.Println(err)
 	}
 	var dependenciaAsociada models.Dependencia
 	url = beego.AppConfig.String("OikosCrudUrl") + "dependencia/" + strconv.Itoa(transaccion.DependenciaAsociadaId)

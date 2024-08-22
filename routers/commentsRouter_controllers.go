@@ -20,7 +20,7 @@ func init() {
         beego.ControllerComments{
             Method: "EditarDependencia",
             Router: "/EditarDependencia",
-            AllowHTTPMethods: []string{"put"},
+            AllowHTTPMethods: []string{"post"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})

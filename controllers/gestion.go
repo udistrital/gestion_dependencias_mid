@@ -56,26 +56,26 @@ func (c *GestionDependenciasController) BuscarDependencia() {
 // @Param	body		body 	{}	true		"body for Editar Dependencia content"
 // @Success 201 {init} 
 // @Failure 400 the request contains incorrect syntax
-// @router /EditarDependencia [put]
+// @router /EditarDependencia [post]
 func (c *GestionDependenciasController) EditarDependencia() {
 	fmt.Println("Entra a editar")
-	// defer helpers.ErrorController(c.Controller,"RegistrarDependencia")
+	defer helpers.ErrorController(c.Controller,"EditarDependencia")
 
-	// if v, e := helpers.ValidarBody(c.Ctx.Input.RequestBody); !v || e != nil {
-	// 	panic(map[string]interface{}{"funcion": "RegistrarDependencia", "err": helpers.ErrorBody, "status": "400"})
-	// }
+	if v, e := helpers.ValidarBody(c.Ctx.Input.RequestBody); !v || e != nil {
+		panic(map[string]interface{}{"funcion": "EditarDependencia", "err": helpers.ErrorBody, "status": "400"})
+	}
 
-	// var v models.NuevaDependencia
+	var v models.EditarDependencia
 
-	// if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-	// 	if resultado, err := services.RegistrarDependencia(&v); err == nil {
-	// 		c.Ctx.Output.SetStatus(201)
-	// 		c.Data["json"] = map[string]interface{}{"Success": true, "Status": 201, "Message": "Dependencia insertada con exito", "Data": resultado}
-	// 	} else {
-	// 		panic(err)
-	// 	}
-	// } else {
-	// 	panic(map[string]interface{}{"funcion": "RegistrarDependencia", "err": err.Error(), "status": "400"})
-	// }
-	// c.ServeJSON()
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
+		if resultado, err := services.EditarDependencia(&v); err == nil {
+			c.Ctx.Output.SetStatus(201)
+			c.Data["json"] = map[string]interface{}{"Success": true, "Status": 201, "Message": "Dependencia editada con exito", "Data": resultado}
+		} else {
+			panic(err)
+		}
+	} else {
+		panic(map[string]interface{}{"funcion": "EditarDependencia", "err": err.Error(), "status": "400"})
+	}
+	c.ServeJSON()
 }
