@@ -2,20 +2,19 @@ package controllers
 
 import (
 	"encoding/json"
-
 	"github.com/astaxie/beego"
+	"github.com/udistrital/gestion_dependencias_mid/helpers"
 	"github.com/udistrital/gestion_dependencias_mid/models"
 	"github.com/udistrital/gestion_dependencias_mid/services"
-	"github.com/udistrital/gestion_dependencias_mid/helpers"
 )
 
-// GestionDependenciasController operations for GestionDependencias
-type GestionDependenciasController struct {
+// RegistroDependenciasController operations for RegistroDependencias
+type RegistroDependenciasController struct {
 	beego.Controller
 }
 
 //URLMapping...
-func (c *GestionDependenciasController) URLMapping(){
+func (c *RegistroDependenciasController) URLMapping(){
 	c.Mapping("RegistrarDependencia", c.RegistrarDependencia)
 }
 
@@ -26,7 +25,7 @@ func (c *GestionDependenciasController) URLMapping(){
 // @Success 201 {init} 
 // @Failure 400 the request contains incorrect syntax
 // @router /RegistrarDependencia [post]
-func (c *GestionDependenciasController) RegistrarDependencia() {
+func (c *RegistroDependenciasController) RegistrarDependencia() {
 	defer helpers.ErrorController(c.Controller,"RegistrarDependencia")
 
 	if v, e := helpers.ValidarBody(c.Ctx.Input.RequestBody); !v || e != nil {

@@ -16,6 +16,7 @@ func init() {
     ns := beego.NewNamespace("/v1",
 		beego.NSNamespace("/gestion_dependencias_mid",
 			beego.NSInclude(
+				&controllers.RegistroDependenciasController{},
 				&controllers.GestionDependenciasController{},
 			),
 		),
