@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"net/url"
 	"strconv"
 
@@ -332,6 +333,21 @@ func Organigramas() (organigramas models.Organigramas, outputError map[string]in
 		dependencias_struct = append(dependencias_struct, dependencia_items)
 	}
 
+	var dependencias_struct_copy []*models.Organigrama
+
+	for _, dependencia := range dependencias_struct {
+		dependencia_copy := &models.Organigrama{
+			Dependencia: dependencia.Dependencia,  
+		}
+
+		var tiposDependenciaCopy []string
+		for _, tipo := range dependencia.Tipo {
+			tiposDependenciaCopy = append(tiposDependenciaCopy, tipo)
+		}
+		dependencia_copy.Tipo = tiposDependenciaCopy
+		dependencias_struct_copy = append(dependencias_struct_copy, dependencia_copy)
+	}
+
 
 	var dependencias_padre []models.DependenciaPadre
 	url = beego.AppConfig.String("OikosCrudUrl") + "dependencia_padre?limit=-1"
@@ -345,11 +361,12 @@ func Organigramas() (organigramas models.Organigramas, outputError map[string]in
 		for j := 0; j < len(dependencias_padre); j++ {
 			arbol := dependencias_padre[j]
 			if dependencia.Dependencia == arbol.PadreId.Nombre {
-				for k := 0; k < len(dependencias_struct); k++ {
-					dependenciaHija := dependencias_struct[k]
+				for k := 0; k < len(dependencias_struct_copy); k++ {
+					dependenciaHija := dependencias_struct_copy[k]
 					if dependenciaHija.Dependencia == arbol.HijaId.Nombre {
 						dependencia.Hijos = append(dependencia.Hijos, dependenciaHija)
 						if dependenciasPasadas[dependenciaHija.Dependencia] {
+							fmt.Println(dependencias_struct[k].Dependencia)
 							dependencias_struct = append(dependencias_struct[:k], dependencias_struct[k+1:]...)
 							k--
 						}
