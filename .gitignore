@@ -14,6 +14,8 @@ swagger/images/
 swagger/lang/
 swagger/lib/
 .env
+go.mod
+go.sum
 gestion_dependencias_mid
 *.exe*
 .exe~
