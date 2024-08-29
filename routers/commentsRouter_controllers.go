@@ -25,6 +25,15 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["github.com/udistrital/gestion_dependencias_mid/controllers:GestionDependenciasController"] = append(beego.GlobalControllerRouter["github.com/udistrital/gestion_dependencias_mid/controllers:GestionDependenciasController"],
+        beego.ControllerComments{
+            Method: "Organigramas",
+            Router: "/Organigramas",
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["github.com/udistrital/gestion_dependencias_mid/controllers:RegistroDependenciasController"] = append(beego.GlobalControllerRouter["github.com/udistrital/gestion_dependencias_mid/controllers:RegistroDependenciasController"],
         beego.ControllerComments{
             Method: "RegistrarDependencia",

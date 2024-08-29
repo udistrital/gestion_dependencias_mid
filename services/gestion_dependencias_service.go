@@ -118,11 +118,13 @@ func CrearRespuestaBusqueda(dependencia models.Dependencia) models.RespuestaBusq
 	}
 	tiposDependencia := make([]models.TipoDependencia, 0)
 	for _, dt := range dependencia.DependenciaTipoDependencia {
-		tipoDependencia := models.TipoDependencia{
-			Id:     dt.TipoDependenciaId.Id,
-			Nombre: dt.TipoDependenciaId.Nombre,
+		if(dt.Activo){
+			tipoDependencia := models.TipoDependencia{
+				Id:     dt.TipoDependenciaId.Id,
+				Nombre: dt.TipoDependenciaId.Nombre,
+			}
+			tiposDependencia = append(tiposDependencia, tipoDependencia)
 		}
-		tiposDependencia = append(tiposDependencia, tipoDependencia)
 	}
 	resultado.TipoDependencia = &tiposDependencia
 
@@ -299,4 +301,65 @@ func contiene(slice []int, valor int) bool {
 		}
 	}
 	return false
+}
+
+func Organigramas() (organigramas models.Organigramas, outputError map[string]interface{})  {
+	defer func() {
+		if err := recover(); err != nil {
+			outputError = map[string]interface{}{"funcion": "BuscarDependencia", "err": err, "status": "500"}
+			panic(outputError)
+		}
+	}()
+	var dependencias []models.Dependencia
+	url := beego.AppConfig.String("OikosCrudUrl") + "dependencia?limit=-1"
+	if err := request.GetJson(url, &dependencias); err != nil {
+		logs.Error(err)
+		panic(err.Error())
+	}
+
+	var dependencias_struct []*models.Organigrama  
+	for _, dependencia := range dependencias {
+		dependencia_items := &models.Organigrama{  
+			Dependencia: dependencia.Nombre,
+		}
+		var tiposDependencia []string
+		for _, tipos := range dependencia.DependenciaTipoDependencia {
+			if tipos.Activo {
+				tiposDependencia = append(tiposDependencia, tipos.TipoDependenciaId.Nombre)
+			}
+		}
+		dependencia_items.Tipo = tiposDependencia
+		dependencias_struct = append(dependencias_struct, dependencia_items)
+	}
+
+
+	var dependencias_padre []models.DependenciaPadre
+	url = beego.AppConfig.String("OikosCrudUrl") + "dependencia_padre?limit=-1"
+	if err := request.GetJson(url, &dependencias_padre); err != nil {
+		logs.Error(err)
+		panic(err.Error())
+	}
+	dependenciasPasadas := make(map[string]bool)
+	for i := 0; i < len(dependencias_struct); i++ {
+		dependencia := dependencias_struct[i]
+		for j := 0; j < len(dependencias_padre); j++ {
+			arbol := dependencias_padre[j]
+			if dependencia.Dependencia == arbol.PadreId.Nombre {
+				for k := 0; k < len(dependencias_struct); k++ {
+					dependenciaHija := dependencias_struct[k]
+					if dependenciaHija.Dependencia == arbol.HijaId.Nombre {
+						dependencia.Hijos = append(dependencia.Hijos, dependenciaHija)
+						if dependenciasPasadas[dependenciaHija.Dependencia] {
+							dependencias_struct = append(dependencias_struct[:k], dependencias_struct[k+1:]...)
+							k--
+						}
+					}
+				}
+			}
+		}
+		dependenciasPasadas[dependencia.Dependencia] = true
+	}
+	organigramas.General = dependencias_struct
+
+	return organigramas, outputError
 }
