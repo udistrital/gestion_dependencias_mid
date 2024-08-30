@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"net/url"
 	"strconv"
 
@@ -324,12 +323,20 @@ func Organigramas() (organigramas models.Organigramas, outputError map[string]in
 	organigramaMap := make(map[int]*models.Organigrama)
 
 	for _, dep := range dependencias {
-		organigramaMap[dep.Id] = &models.Organigrama{Dependencia: dep}
+		var tipos []string
+		for _, tipo := range dep.DependenciaTipoDependencia{
+			if (tipo.Activo){
+				tipos = append(tipos, tipo.TipoDependenciaId.Nombre)
+			}
+		}
+		organigramaMap[dep.Id] = &models.Organigrama{
+			Dependencia: dep,
+			Tipo: tipos,
+		}
 	}
 
 	esHijo := make(map[int]bool)
 
-	//Construir el arbol
 	for _, dep_padre := range dependencias_padre {
 		padre := organigramaMap[dep_padre.PadreId.Id]
 		hija := organigramaMap[dep_padre.HijaId.Id]
@@ -337,7 +344,6 @@ func Organigramas() (organigramas models.Organigramas, outputError map[string]in
 		esHijo[dep_padre.HijaId.Id] = true
 	}
 
-	// Encontrar las raíces del árbol (nodos que no son hijos de nadie)
 	var raiz []*models.Organigrama
 	for id, org := range organigramaMap {
 		if !esHijo[id] {
@@ -346,73 +352,6 @@ func Organigramas() (organigramas models.Organigramas, outputError map[string]in
 	}
 
 	organigramas.General = raiz
-
-	/*var dependencias []models.Dependencia
-	url := beego.AppConfig.String("OikosCrudUrl") + "dependencia?limit=-1"
-	if err := request.GetJson(url, &dependencias); err != nil {
-		logs.Error(err)
-		panic(err.Error())
-	}
-
-	var dependencias_struct []*models.Organigrama
-	for _, dependencia := range dependencias {
-		dependencia_items := &models.Organigrama{
-			Dependencia: dependencia.Nombre,
-		}
-		var tiposDependencia []string
-		for _, tipos := range dependencia.DependenciaTipoDependencia {
-			if tipos.Activo {
-				tiposDependencia = append(tiposDependencia, tipos.TipoDependenciaId.Nombre)
-			}
-		}
-		dependencia_items.Tipo = tiposDependencia
-		dependencias_struct = append(dependencias_struct, dependencia_items)
-	}
-
-	var dependencias_struct_copy []*models.Organigrama
-
-	for _, dependencia := range dependencias_struct {
-		dependencia_copy := &models.Organigrama{
-			Dependencia: dependencia.Dependencia,  
-		}
-
-		var tiposDependenciaCopy []string
-		for _, tipo := range dependencia.Tipo {
-			tiposDependenciaCopy = append(tiposDependenciaCopy, tipo)
-		}
-		dependencia_copy.Tipo = tiposDependenciaCopy
-		dependencias_struct_copy = append(dependencias_struct_copy, dependencia_copy)
-	}
-
-
-	var dependencias_padre []models.DependenciaPadre
-	url = beego.AppConfig.String("OikosCrudUrl") + "dependencia_padre?limit=-1"
-	if err := request.GetJson(url, &dependencias_padre); err != nil {
-		logs.Error(err)
-		panic(err.Error())
-	}
-	dependenciasPasadas := make(map[string]bool)
-	for i := 0; i < len(dependencias_struct); i++ {
-		dependencia := dependencias_struct[i]
-		for j := 0; j < len(dependencias_padre); j++ {
-			arbol := dependencias_padre[j]
-			if dependencia.Dependencia == arbol.PadreId.Nombre {
-				for k := 0; k < len(dependencias_struct_copy); k++ {
-					dependenciaHija := dependencias_struct_copy[k]
-					if dependenciaHija.Dependencia == arbol.HijaId.Nombre {
-						dependencia.Hijos = append(dependencia.Hijos, dependenciaHija)
-						if dependenciasPasadas[dependenciaHija.Dependencia] {
-							fmt.Println(dependencias_struct[k].Dependencia)
-							dependencias_struct = append(dependencias_struct[:k], dependencias_struct[k+1:]...)
-							k--
-						}
-					}
-				}
-			}
-		}
-		dependenciasPasadas[dependencia.Dependencia] = true
-	}
-	organigramas.General = dependencias_struct*/
 
 	return organigramas, outputError
 }
