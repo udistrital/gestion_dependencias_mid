@@ -19,6 +19,7 @@ type GestionDependenciasController struct {
 func (c *GestionDependenciasController) URLMapping(){
 	c.Mapping("BuscarDependencia", c.BuscarDependencia)
 	c.Mapping("EditarDependencia", c.EditarDependencia)
+	c.Mapping("Organigramas", c.Organigramas)
 }
 
 // BuscarDependencia ...
@@ -58,7 +59,6 @@ func (c *GestionDependenciasController) BuscarDependencia() {
 // @Failure 400 the request contains incorrect syntax
 // @router /EditarDependencia [post]
 func (c *GestionDependenciasController) EditarDependencia() {
-	fmt.Println("Entra a editar")
 	defer helpers.ErrorController(c.Controller,"EditarDependencia")
 
 	if v, e := helpers.ValidarBody(c.Ctx.Input.RequestBody); !v || e != nil {
@@ -77,5 +77,27 @@ func (c *GestionDependenciasController) EditarDependencia() {
 	} else {
 		panic(map[string]interface{}{"funcion": "EditarDependencia", "err": err.Error(), "status": "400"})
 	}
+	c.ServeJSON()
+}
+
+// Organigramas ...
+// Get ...
+// @Title Organigramas
+// @Description Organigramas de Dependencias
+// @Success 200 {object} models.Organigramas
+// @Failure 400 the request contains incorrect syntax
+// @router /Organigramas [get]
+func (c *GestionDependenciasController) Organigramas() {
+	fmt.Println("Entra a organigramas")
+	defer helpers.ErrorController(c.Controller,"Organigramas")
+
+
+	if organigramas, err := services.Organigramas(); err == nil {
+		c.Ctx.Output.SetStatus(200)
+		c.Data["json"] = map[string]interface{}{"Success": true, "Status": 200, "Message": "Organigramas", "Data": organigramas}
+	} else {
+		panic(map[string]interface{}{"funcion": "Organigramas", "err": err, "status": "400"})
+	}
+
 	c.ServeJSON()
 }

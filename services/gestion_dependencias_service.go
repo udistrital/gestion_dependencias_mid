@@ -52,7 +52,7 @@ func BuscarDependencia(transaccion *models.BusquedaDependencia) (resultadoBusque
 		}
 	}
 
-	if transaccion.FacultadId != 0{
+	if transaccion.FacultadId != 0 {
 		var dependenciasxNombre []models.Dependencia
 		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia?query=Id:" + strconv.Itoa(transaccion.FacultadId)
 		if err := request.GetJson(url, &dependenciasxNombre); err != nil {
@@ -68,7 +68,7 @@ func BuscarDependencia(transaccion *models.BusquedaDependencia) (resultadoBusque
 		}
 	}
 
-	if transaccion.VicerrectoriaId != 0{
+	if transaccion.VicerrectoriaId != 0 {
 		var dependenciasxNombre []models.Dependencia
 		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia?query=Id:" + strconv.Itoa(transaccion.VicerrectoriaId)
 		if err := request.GetJson(url, &dependenciasxNombre); err != nil {
@@ -84,7 +84,7 @@ func BuscarDependencia(transaccion *models.BusquedaDependencia) (resultadoBusque
 		}
 	}
 
-	if transaccion.BusquedaEstado != nil{
+	if transaccion.BusquedaEstado != nil {
 		var dependenciasxNombre []models.Dependencia
 		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia?query=Activo:" + strconv.FormatBool(transaccion.BusquedaEstado.Estado) + "&limit=-1"
 		if err := request.GetJson(url, &dependenciasxNombre); err != nil {
@@ -107,9 +107,9 @@ func CrearRespuestaBusqueda(dependencia models.Dependencia) models.RespuestaBusq
 	var resultado models.RespuestaBusquedaDependencia
 	resultado.Dependencia = &dependencia
 	resultado.Estado = dependencia.Activo
-	if len(dependencia.DependenciaTipoDependencia) == 0{
+	if len(dependencia.DependenciaTipoDependencia) == 0 {
 		var dependenciaAux []models.Dependencia
-		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia?query=Id:" +  strconv.Itoa(dependencia.Id) 
+		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia?query=Id:" + strconv.Itoa(dependencia.Id)
 		if err := request.GetJson(url, &dependenciaAux); err != nil {
 			logs.Error(err)
 			panic(err.Error())
@@ -118,11 +118,13 @@ func CrearRespuestaBusqueda(dependencia models.Dependencia) models.RespuestaBusq
 	}
 	tiposDependencia := make([]models.TipoDependencia, 0)
 	for _, dt := range dependencia.DependenciaTipoDependencia {
-		tipoDependencia := models.TipoDependencia{
-			Id:     dt.TipoDependenciaId.Id,
-			Nombre: dt.TipoDependenciaId.Nombre,
+		if dt.Activo {
+			tipoDependencia := models.TipoDependencia{
+				Id:     dt.TipoDependenciaId.Id,
+				Nombre: dt.TipoDependenciaId.Nombre,
+			}
+			tiposDependencia = append(tiposDependencia, tipoDependencia)
 		}
-		tiposDependencia = append(tiposDependencia, tipoDependencia)
 	}
 	resultado.TipoDependencia = &tiposDependencia
 
@@ -148,7 +150,6 @@ func ExisteDependencia(resultadoBusqueda []models.RespuestaBusquedaDependencia, 
 	return false
 }
 
-
 func EditarDependencia(transaccion *models.EditarDependencia) (alerta []string, outputError map[string]interface{}) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -157,10 +158,10 @@ func EditarDependencia(transaccion *models.EditarDependencia) (alerta []string, 
 		}
 	}()
 	alerta = append(alerta, "Success")
-	
+
 	var dependencia models.Dependencia
 	url := beego.AppConfig.String("OikosCrudUrl") + "dependencia/" + strconv.Itoa(transaccion.DependenciaId)
-	if err := request.GetJson(url,&dependencia); err != nil || dependencia.Id == 0{
+	if err := request.GetJson(url, &dependencia); err != nil || dependencia.Id == 0 {
 		logs.Error(err)
 		panic(err.Error())
 	}
@@ -169,11 +170,11 @@ func EditarDependencia(transaccion *models.EditarDependencia) (alerta []string, 
 	dependencia.CorreoElectronico = transaccion.CorreoElectronico
 	dependencia.TelefonoDependencia = transaccion.TelefonoDependencia
 	dependencia.FechaModificacion = time_bogota.TiempoBogotaFormato()
-	
+
 	var err error
 	url = beego.AppConfig.String("OikosCrudUrl") + "dependencia/" + strconv.Itoa(transaccion.DependenciaId)
 	var respuestaDependencia map[string]interface{}
-	if err = request.SendJson(url,"PUT",&respuestaDependencia,dependencia); err != nil {
+	if err = request.SendJson(url, "PUT", &respuestaDependencia, dependencia); err != nil {
 		logs.Error(err)
 		panic(err.Error())
 	}
@@ -208,28 +209,26 @@ func EditarDependencia(transaccion *models.EditarDependencia) (alerta []string, 
 
 	for tipo, activo := range tiposMap {
 		if !activo {
-			actualizarDependenciaTipoDependencia(tipo, false,transaccion.DependenciaId)
+			actualizarDependenciaTipoDependencia(tipo, false, transaccion.DependenciaId)
 		} else {
 			if contiene(tiposActualesFalse, tipo) {
-				actualizarDependenciaTipoDependencia(tipo, true,transaccion.DependenciaId)
+				actualizarDependenciaTipoDependencia(tipo, true, transaccion.DependenciaId)
 			}
 		}
 	}
 
-
 	var depedencia_padre []models.DependenciaPadre
 	url = beego.AppConfig.String("OikosCrudUrl") + "dependencia_padre?query=HijaId:" + strconv.Itoa(transaccion.DependenciaId) + ",Activo:true"
-	if err := request.GetJson(url,&depedencia_padre); err != nil{
+	if err := request.GetJson(url, &depedencia_padre); err != nil {
 		logs.Error(err)
 		panic(err.Error())
 	}
 
-	if (transaccion.DependenciaAsociadaId != depedencia_padre[0].HijaId.Id){
-
+	if transaccion.DependenciaAsociadaId != depedencia_padre[0].HijaId.Id {
 
 		var depedencia_padre_nueva models.Dependencia
 		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia/" + strconv.Itoa(transaccion.DependenciaAsociadaId)
-		if err := request.GetJson(url,&depedencia_padre_nueva); err != nil{
+		if err := request.GetJson(url, &depedencia_padre_nueva); err != nil {
 			logs.Error(err)
 			panic(err.Error())
 		}
@@ -240,10 +239,9 @@ func EditarDependencia(transaccion *models.EditarDependencia) (alerta []string, 
 		if err := request.SendJson(url, "PUT", &res, depedencia_padre[0]); err != nil {
 			logs.Error(err)
 			panic(err.Error())
-		}		 
-		
-	}
+		}
 
+	}
 
 	return alerta, outputError
 }
@@ -257,11 +255,11 @@ func nuevoTipoDependencia(tipo int, dependenciaId models.Dependencia) {
 	}
 
 	nuevaDependenciaTipoDependencia := models.DependenciaTipoDependencia{
-		TipoDependenciaId:  &tipoDependencia,
-		DependenciaId:      &dependenciaId,
-		Activo:             true,
-		FechaCreacion:      time_bogota.TiempoBogotaFormato(),
-		FechaModificacion:  time_bogota.TiempoBogotaFormato(),
+		TipoDependenciaId: &tipoDependencia,
+		DependenciaId:     &dependenciaId,
+		Activo:            true,
+		FechaCreacion:     time_bogota.TiempoBogotaFormato(),
+		FechaModificacion: time_bogota.TiempoBogotaFormato(),
 	}
 
 	url = beego.AppConfig.String("OikosCrudUrl") + "dependencia_tipo_dependencia"
@@ -299,4 +297,61 @@ func contiene(slice []int, valor int) bool {
 		}
 	}
 	return false
+}
+
+func Organigramas() (organigramas models.Organigramas, outputError map[string]interface{}) {
+	defer func() {
+		if err := recover(); err != nil {
+			outputError = map[string]interface{}{"funcion": "BuscarDependencia", "err": err, "status": "500"}
+			panic(outputError)
+		}
+	}()
+	var dependencias []models.Dependencia
+	url := beego.AppConfig.String("OikosCrudUrl") + "dependencia?limit=-1"
+	if err := request.GetJson(url, &dependencias); err != nil {
+		logs.Error(err)
+		panic(err.Error())
+	}
+
+	var dependencias_padre []models.DependenciaPadre
+	url = beego.AppConfig.String("OikosCrudUrl") + "dependencia_padre?limit=-1"
+	if err := request.GetJson(url, &dependencias_padre); err != nil {
+		logs.Error(err)
+		panic(err.Error())
+	}
+
+	organigramaMap := make(map[int]*models.Organigrama)
+
+	for _, dep := range dependencias {
+		var tipos []string
+		for _, tipo := range dep.DependenciaTipoDependencia{
+			if (tipo.Activo){
+				tipos = append(tipos, tipo.TipoDependenciaId.Nombre)
+			}
+		}
+		organigramaMap[dep.Id] = &models.Organigrama{
+			Dependencia: dep,
+			Tipo: tipos,
+		}
+	}
+
+	esHijo := make(map[int]bool)
+
+	for _, dep_padre := range dependencias_padre {
+		padre := organigramaMap[dep_padre.PadreId.Id]
+		hija := organigramaMap[dep_padre.HijaId.Id]
+		padre.Hijos = append(padre.Hijos, hija)
+		esHijo[dep_padre.HijaId.Id] = true
+	}
+
+	var raiz []*models.Organigrama
+	for id, org := range organigramaMap {
+		if !esHijo[id] {
+			raiz = append(raiz, org)
+		}
+	}
+
+	organigramas.General = raiz
+
+	return organigramas, outputError
 }
