@@ -353,5 +353,86 @@ func Organigramas() (organigramas models.Organigramas, outputError map[string]in
 
 	organigramas.General = raiz
 
+	academico := copiarOrganigrama(organigramas.General)
+	administrativo := copiarOrganigrama(organigramas.General)
+	academico = filtrarOrganigrama(academico, dependencias_padre)
+	administrativo = filtrarOrganigrama(administrativo, dependencias_padre)
+
+	academico = podarOrganigramaAcademico(academico)
+	administrativo = podarOrganigramaAdministrativo(administrativo)
+
+	organigramas.Academico = academico
+	organigramas.Administrativo = administrativo
+
 	return organigramas, outputError
+}
+
+
+func copiarOrganigrama(organigrama []*models.Organigrama) []*models.Organigrama {
+	var copia []*models.Organigrama
+	for _, org := range organigrama {
+		nuevaOrganizacion := &models.Organigrama{
+			Dependencia: org.Dependencia,
+			Tipo:        org.Tipo,
+			Hijos:       copiarOrganigrama(org.Hijos),
+		}
+		copia = append(copia, nuevaOrganizacion)
+	}
+	return copia
+}
+
+
+func filtrarOrganigrama(organigrama []*models.Organigrama, dependencias_padre []models.DependenciaPadre) []*models.Organigrama {
+	var filtrado []*models.Organigrama
+	for _, org := range organigrama {
+		if len(org.Hijos) > 0 || tienePadre(org, dependencias_padre) {
+			org.Hijos = filtrarOrganigrama(org.Hijos, dependencias_padre)
+			filtrado = append(filtrado, org)
+		}
+	}
+	return filtrado
+}
+
+func tienePadre(nodo *models.Organigrama, dependencias_padre []models.DependenciaPadre) bool {
+	for _, dependencia_padre := range dependencias_padre{
+		if dependencia_padre.HijaId.Id == nodo.Dependencia.Id{
+			return true
+		}
+	}
+	return false
+}
+
+
+func podarOrganigramaAcademico(organigrama []*models.Organigrama) []*models.Organigrama {
+	for _, org := range organigrama {
+        if org.Dependencia.Nombre == "RECTORIA" {
+            var hijosFiltrados []*models.Organigrama
+            for _, hijo := range org.Hijos {
+                if hijo.Dependencia.Nombre == "VICERRECTORIA ACADEMICA"{
+                    hijosFiltrados = append(hijosFiltrados, hijo)
+                }
+            }
+            org.Hijos = hijosFiltrados
+        } else {
+            org.Hijos = podarOrganigramaAcademico(org.Hijos)
+        }
+    }
+    return organigrama
+}
+
+func podarOrganigramaAdministrativo(organigrama []*models.Organigrama) []*models.Organigrama {
+	for _, org := range organigrama {
+        if org.Dependencia.Nombre == "RECTORIA" {
+            var hijosFiltrados []*models.Organigrama
+            for _, hijo := range org.Hijos {
+                if hijo.Dependencia.Nombre != "VICERRECTORIA ACADEMICA"{
+                    hijosFiltrados = append(hijosFiltrados, hijo)
+                }
+            }
+            org.Hijos = hijosFiltrados
+        } else {
+            org.Hijos = podarOrganigramaAdministrativo(org.Hijos)
+        }
+    }
+    return organigrama
 }
