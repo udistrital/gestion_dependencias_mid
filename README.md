@@ -1,4 +1,3 @@
-
 # gestion_dependencias_mid
 :heavy_check_mark: Check: Repositorio para gestion_dependencias_mid.
 
