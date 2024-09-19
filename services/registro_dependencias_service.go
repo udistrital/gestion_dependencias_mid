@@ -70,7 +70,7 @@ func RegistrarDependencia(transaccion *models.NuevaDependencia) (alerta []string
 			logs.Error(err)
 			panic(err.Error())
 		}
-		creaciones.DependenciaTipoDependenciaId = append(creaciones.DependenciaTipoDependenciaId, resDependenciaTipoDependenciaRegistrada["Id"].(int))
+		creaciones.DependenciaTipoDependenciaId = append(creaciones.DependenciaTipoDependenciaId, int(resDependenciaTipoDependenciaRegistrada["Id"].(float64)))
 	}
 	fmt.Println("FUNCIONO DEPENDENCIA TIPO DEPENDENCIA")
 	fmt.Println(creaciones.DependenciaTipoDependenciaId)
