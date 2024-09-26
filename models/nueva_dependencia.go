@@ -2,6 +2,6 @@ package models
 
 type NuevaDependencia struct {
 	Dependencia 			*Dependencia
-	TipoDependenciaId		int
+	TipoDependenciaId		[]int
 	DependenciaAsociadaId	int
 }
