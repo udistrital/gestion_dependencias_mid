@@ -64,7 +64,6 @@ func (c *GestionDependenciasController) EditarDependencia() {
 	if v, e := helpers.ValidarBody(c.Ctx.Input.RequestBody); !v || e != nil {
 		panic(map[string]interface{}{"funcion": "EditarDependencia", "err": helpers.ErrorBody, "status": "400"})
 	}
-
 	var v models.EditarDependencia
 
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
