@@ -3,7 +3,7 @@ package services
 import (
 	"net/url"
 	"strconv"
-
+	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/gestion_dependencias_mid/models"
@@ -109,6 +109,7 @@ func CrearRespuestaBusqueda(dependencia models.Dependencia) models.RespuestaBusq
 	resultado.Estado = dependencia.Activo
 	if len(dependencia.DependenciaTipoDependencia) == 0 {
 		var dependenciaAux []models.Dependencia
+		fmt.Println("ejecuta la fucion")
 		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia?query=Id:" + strconv.Itoa(dependencia.Id)
 		if err := request.GetJson(url, &dependenciaAux); err != nil {
 			logs.Error(err)
