@@ -1,7 +1,7 @@
 package services_test
 
 import (
-    //"errors"
+    "errors"
     "testing"
     "bou.ke/monkey"
     "github.com/udistrital/gestion_dependencias_mid/services"
@@ -13,7 +13,11 @@ import (
     "strconv"
 )
 
-/*func TestBuscarDependencia(t *testing.T) {
+func TestBuscarDependencia(t *testing.T) {
+    t.Log("//////////////////////////////////")
+    t.Log("Inicio TestBuscarDependencia")
+    t.Log("//////////////////////////////////")
+
 	t.Run("Caso 1: Todos los datos están completos", func(t *testing.T) {
 		transaccion := &models.BusquedaDependencia{
 			NombreDependencia: "Dependencia 1",
@@ -76,20 +80,25 @@ import (
 		resultadoBusqueda, outputError := services.BuscarDependencia(transaccion)
 
 		if outputError != nil {
-			t.Fatalf("No se esperaba un error, pero se obtuvo: %v", outputError)
-		}
+            t.Fatalf("No se esperaba un error, pero se obtuvo: %v", outputError)
+        }
 
-		if len(resultadoBusqueda) == 0 {
-			t.Errorf("Se esperaban resultados en la búsqueda, pero no se obtuvo ninguno")
-		} else {
-			t.Logf("Resultados obtenidos: %v", resultadoBusqueda)
-		}
+        if len(resultadoBusqueda) != len(dependencias) {
+            t.Errorf("Se esperaban %d resultados, pero se obtuvieron %d", len(dependencias), len(resultadoBusqueda))
+        }
+
+        // Verificación adicional de los campos de los resultados
+        for i, res := range resultadoBusqueda {
+            if res.Dependencia == nil || res.Dependencia.Id != dependencias[i].Id || res.Dependencia.Nombre != dependencias[i].Nombre {
+                t.Errorf("El resultado %d no es el esperado. Obtenido: %+v, Esperado: %+v", i, res.Dependencia, dependencias[i])
+            }
+        }
 
 		t.Log("Test de caso exitoso para BuscarDependencia ejecutado correctamente")
 	})
-}*/
+}
 
-/*func TestCrearRespuestaBusqueda(t *testing.T) {
+func TestCrearRespuestaBusqueda(t *testing.T) {
     t.Log("//////////////////////////////////")
     t.Log("Inicio TestCrearRespuestaBusqueda")
     t.Log("//////////////////////////////////")
@@ -209,9 +218,9 @@ import (
             t.Logf("El test falló porque no se encontró una dependencia hija asociada para el ID %d", dependenciaID)
         }
     })
-}*/
+}
 
-/*func TestExisteDependencia(t *testing.T) {
+func TestExisteDependencia(t *testing.T) {
     t.Log("//////////////////////////////////")
     t.Log("Inicio TestExisteDependencia")
     t.Log("//////////////////////////////////")
@@ -226,9 +235,9 @@ import (
             t.Errorf("No existe la dependencia con ID 1")
         }
     })
-}*/
+}
 
-/*func TestEditarDependencia(t *testing.T) {
+func TestEditarDependencia(t *testing.T) {
     t.Log("//////////////////////////////////")
     t.Log("Inicio TestEditarDependencia")
     t.Log("//////////////////////////////////")
@@ -374,9 +383,9 @@ import (
             t.Errorf("Se esperaba ningún error, pero se obtuvo: %v", outputError)
         }
     })
-}*/
+}
 
-/*func TestNuevoTipoDependencia(t *testing.T) {
+func TestNuevoTipoDependencia(t *testing.T) {
     t.Log("//////////////////////////////////")
     t.Log("Inicio TestNuevoTipoDependencia")
     t.Log("//////////////////////////////////")
@@ -503,9 +512,9 @@ import (
             t.Errorf("Se esperaba que se llamara a RollbackDependenciaTipoDependencia")
         }
     })
-}*/
+}
 
-/*func TestActualizarDependenciaTipoDependencia(t *testing.T) {
+func TestActualizarDependenciaTipoDependencia(t *testing.T) {
     t.Log("//////////////////////////////////")
     t.Log("Inicio TestActualizarDependenciaTipoDependencia")
     t.Log("//////////////////////////////////")
@@ -620,9 +629,9 @@ import (
             t.Errorf("Se esperaba que se llamara a RollbackActualizacionTipoDependencia")
         }
     })
-}*/
+}
 
-/*func TestContiene(t *testing.T) {
+func TestContiene(t *testing.T) {
     t.Log("//////////////////////////////////")
     t.Log("Inicio TestContiene")
     t.Log("//////////////////////////////////")
@@ -643,9 +652,9 @@ import (
         }
     })
 
-}*/
+}
 
-/*func TestRollbackActualizacionTipoDependencia(t *testing.T) {
+func TestRollbackActualizacionTipoDependencia(t *testing.T) {
     t.Log("//////////////////////////////////")
     t.Log("Inicio TestRollbackActualizacionTipoDependencia")
     t.Log("//////////////////////////////////")
@@ -750,9 +759,9 @@ import (
 
         services.RollbackActualizacionTipoDependencia(dependencia, &tiposRegistrados, &tiposOriginales)
     })
-}*/
+}
 
-/*func TestRollbackDependenciaTipoDependencia(t *testing.T) {
+func TestRollbackDependenciaTipoDependencia(t *testing.T) {
     t.Log("//////////////////////////////////")
     t.Log("Inicio TestRollbackDependenciaTipoDependencia")
     t.Log("//////////////////////////////////")
@@ -844,9 +853,9 @@ import (
         }()
         services.RollbackDependenciaTipoDependencia(dependencia, &tiposRegistrados)
     }) 
-}*/
+}
 
-/*func TestRollbackDependenciaOriginal(t *testing.T) {
+func TestRollbackDependenciaOriginal(t *testing.T) {
     t.Log("//////////////////////////////////")
     t.Log("Inicio TestRollbackDependenciaOriginal")
     t.Log("//////////////////////////////////")
@@ -929,9 +938,9 @@ import (
         }()
         _ = services.RollbackDependenciaOriginal(dependencia)
     })
-}*/
+}
 
-/*func TestOrganigramas(t *testing.T) {
+func TestOrganigramas(t *testing.T) {
     t.Log("//////////////////////////////////")
 	t.Log("Inicio TestOrganigramas")
 	t.Log("//////////////////////////////////")
@@ -1078,9 +1087,9 @@ import (
         t.Log("Test de caso fallido para Organigramas ejecutado correctamente")
     })
     
-}*/
+}
 
-/*func TestCopiarOrganigrama(t *testing.T) {
+func TestCopiarOrganigrama(t *testing.T) {
 	t.Log("//////////////////////////////////")
 	t.Log("Inicio TestCopiarOrganigrama")
 	t.Log("//////////////////////////////////")
@@ -1141,9 +1150,9 @@ import (
 			t.Errorf("Se esperaba un organigrama vacío, pero se obtuvieron: %d", len(resultado))
 		}
 	})
-}*/
+}
 
-/*func TestFiltrarOrganigrama(t *testing.T) {
+func TestFiltrarOrganigrama(t *testing.T) {
 	t.Log("//////////////////////////////////")
 	t.Log("Inicio TestFiltrarOrganigrama")
 	t.Log("//////////////////////////////////")
@@ -1215,9 +1224,9 @@ import (
 			t.Errorf("Se esperaba un organigrama vacío, pero se obtuvieron: %d", len(resultado))
 		}
 	})
-}*/
+}
 
-/*func TestTienePadre(t *testing.T) {
+func TestTienePadre(t *testing.T) {
 	t.Log("//////////////////////////////////")
 	t.Log("Inicio TestTienePadre")
 	t.Log("//////////////////////////////////")
@@ -1259,9 +1268,9 @@ import (
 			t.Errorf("Se esperaba que el nodo no tuviera padre, pero lo tiene")
 		}
 	})
-}*/
+}
 
-/*func TestPodarOrganigramaAcademico(t *testing.T) {
+func TestPodarOrganigramaAcademico(t *testing.T) {
 	t.Log("//////////////////////////////////")
 	t.Log("Inicio TestPodarOrganigramaAcademico")
 	t.Log("//////////////////////////////////")
@@ -1322,9 +1331,9 @@ import (
 			t.Errorf("Se esperaba que el organigrama no se modificara, pero se obtuvieron: %d elementos", len(resultado))
 		}
 	})
-}*/
+}
 
-/*func TestPodarOrganigramaAdministrativo(t *testing.T) {
+func TestPodarOrganigramaAdministrativo(t *testing.T) {
 	t.Log("//////////////////////////////////")
 	t.Log("Inicio TestPodarOrganigramaAdministrativo")
 	t.Log("//////////////////////////////////")
@@ -1385,4 +1394,4 @@ import (
 			t.Errorf("Se esperaba que el organigrama no se modificara, pero se obtuvieron: %d elementos", len(resultado))
 		}
 	})
-}*/
+}

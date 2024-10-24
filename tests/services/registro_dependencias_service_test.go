@@ -1,20 +1,20 @@
 package services_test
 
 import (
-    //"errors"
-    //"testing"
-    //"bou.ke/monkey"
-    //"github.com/udistrital/gestion_dependencias_mid/services"
-	//"github.com/udistrital/gestion_dependencias_mid/models"
-    //"github.com/udistrital/utils_oas/request"
-	//"github.com/astaxie/beego"
-    //"fmt"
-    //"strings"
-	//"strconv"
-	//"time"
+    "errors"
+    "testing"
+    "bou.ke/monkey"
+    "github.com/udistrital/gestion_dependencias_mid/services"
+	"github.com/udistrital/gestion_dependencias_mid/models"
+    "github.com/udistrital/utils_oas/request"
+	"github.com/astaxie/beego"
+    "fmt"
+    "strings"
+	"strconv"
+	"time"
 )
 
-/*func TestRegistrarDependencia(t *testing.T) {
+func TestRegistrarDependencia(t *testing.T) {
     t.Log("//////////////////////////////////")
     t.Log("Inicio TestRegistrarDependencia")
     t.Log("//////////////////////////////////")
@@ -139,9 +139,9 @@ import (
         t.Log("Test de fallo debido a error en los datos ejecutado correctamente")
     }) 
     
-}*/
+}
 
-/*func TestVerificarExistenciaTipo(t *testing.T) {
+func TestVerificarExistenciaTipo(t *testing.T) {
     t.Log("//////////////////////////////////")
     t.Log("Inicio TestVerificarExistenciaTipo")
     t.Log("//////////////////////////////////")
@@ -202,9 +202,9 @@ import (
 
         services.VerificarExistenciaTipo(tipoId)
     })
-}*/
+}
 
-/*func TestRollbackDependenciaCreada(t *testing.T) {
+func TestRollbackDependenciaCreada(t *testing.T) {
     t.Log("//////////////////////////////////")
     t.Log("Inicio TestRollbackDependenciaCreada")
     t.Log("//////////////////////////////////")
@@ -268,9 +268,9 @@ import (
 
         services.RollbackDependenciaCreada(transaccion) 
     })
-}*/
+}
 
-/*func TestRollbackDependenciaTipoDependenciaCreada(t *testing.T) {
+func TestRollbackDependenciaTipoDependenciaCreada(t *testing.T) {
     t.Log("//////////////////////////////////")
     t.Log("Inicio TestRollbackDependenciaTipoDependenciaCreada")
     t.Log("//////////////////////////////////")
@@ -330,9 +330,9 @@ import (
 
         services.RollbackDependenciaTipoDependenciaCreada(transaccion)
     })
-}*/
+}
 
-/*func TestRollbackDependenciaPadreCreada(t *testing.T) {
+func TestRollbackDependenciaPadreCreada(t *testing.T) {
     t.Log("//////////////////////////////////")
     t.Log("Inicio TestRollbackDependenciaPadreCreada")
     t.Log("//////////////////////////////////")
@@ -401,4 +401,4 @@ import (
 
         services.RollbackDependenciaPadreCreada(transaccion)
     })
-}*/
+}
