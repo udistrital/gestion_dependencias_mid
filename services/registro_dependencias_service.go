@@ -48,8 +48,6 @@ func RegistrarDependencia(transaccion *models.NuevaDependencia) (alerta []string
 		logs.Error(err)
 		panic(err.Error())
 	}
-	fmt.Println("FUNCIONO REGISTRO DE DEPENDENCIA")
-	fmt.Println(resDependenciaRegistrada["Id"])
 	dependenciaNueva.Id = int(resDependenciaRegistrada["Id"].(float64))
 	creaciones.DependenciaId = 	int(resDependenciaRegistrada["Id"].(float64))
 	for _, tipoDependencia := range tiposDependencia{
@@ -72,8 +70,6 @@ func RegistrarDependencia(transaccion *models.NuevaDependencia) (alerta []string
 		}
 		creaciones.DependenciaTipoDependenciaId = append(creaciones.DependenciaTipoDependenciaId, int(resDependenciaTipoDependenciaRegistrada["Id"].(float64)))
 	}
-	fmt.Println("FUNCIONO DEPENDENCIA TIPO DEPENDENCIA")
-	fmt.Println(creaciones.DependenciaTipoDependenciaId)
 	var depedencia_padre models.DependenciaPadre
 	depedencia_padre.PadreId = &dependenciaAsociada
 	depedencia_padre.HijaId = &dependenciaNueva
@@ -87,8 +83,6 @@ func RegistrarDependencia(transaccion *models.NuevaDependencia) (alerta []string
 		logs.Error(err)
 		panic(err.Error())
 	}
-	fmt.Println("FUNCIONO DEPENDENCIA PADRE")
-	fmt.Println(resDependenciaPadre["Id"])
 
 	return alerta, outputError
 }
@@ -131,7 +125,6 @@ func RollbackDependenciaCreada(transaccion *models.Creaciones) (outputError map[
 
 
 func RollbackDependenciaTipoDependenciaCreada(transaccion *models.Creaciones) (outputError map[string]interface{}) {
-	fmt.Println(transaccion.DependenciaTipoDependenciaId)
 	for _, tipo := range transaccion.DependenciaTipoDependenciaId{
 		var respuesta map[string]interface{}
 		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia_tipo_dependencia/" + strconv.Itoa(tipo)

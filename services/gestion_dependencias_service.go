@@ -22,7 +22,6 @@ func BuscarDependencia(transaccion *models.BusquedaDependencia) (resultadoBusque
 	if transaccion.NombreDependencia != "" {
 		var dependenciasxNombre []models.Dependencia
 		nombreDependencia := url.QueryEscape(transaccion.NombreDependencia)
-		fmt.Println("ejecuta la funcion")
 		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia?query=Nombre:" + nombreDependencia
 		if err := request.GetJson(url, &dependenciasxNombre); err != nil {
 			logs.Error(err)
@@ -31,7 +30,6 @@ func BuscarDependencia(transaccion *models.BusquedaDependencia) (resultadoBusque
 
 		for _, dependencia := range dependenciasxNombre {
 			resultado := CrearRespuestaBusqueda(dependencia)
-			fmt.Println("!ExisteDependencia")
 			if !ExisteDependencia(resultadoBusqueda, resultado.Dependencia.Id) {
 				resultadoBusqueda = append(resultadoBusqueda, resultado)
 			}
@@ -40,7 +38,6 @@ func BuscarDependencia(transaccion *models.BusquedaDependencia) (resultadoBusque
 
 	if transaccion.TipoDependenciaId != 0 {
 		var dependenciaTipoDependencia []models.DependenciaTipoDependencia
-		fmt.Println("dependencia_tipo_dependencia?query=T")
 		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia_tipo_dependencia?query=TipoDependenciaId.Id:" + strconv.Itoa(transaccion.TipoDependenciaId) + "&limit=-1"
 		if err := request.GetJson(url, &dependenciaTipoDependencia); err != nil {
 			logs.Error(err)
@@ -113,7 +110,6 @@ func CrearRespuestaBusqueda(dependencia models.Dependencia) models.RespuestaBusq
 
 	if len(dependencia.DependenciaTipoDependencia) == 0 {
 		var dependenciaAux []models.Dependencia
-		fmt.Println("ejecuta la funcion")
 		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia?query=Id:" + strconv.Itoa(dependencia.Id)
 		if err := request.GetJson(url, &dependenciaAux); err != nil {
 			logs.Error(err)
@@ -143,7 +139,6 @@ func CrearRespuestaBusqueda(dependencia models.Dependencia) models.RespuestaBusq
 	if len(dependenciaPadre) > 0 {
 		resultado.DependenciaAsociada = dependenciaPadre[0].PadreId
 	}
-	fmt.Println("finaliza la funcion")
 	return resultado
 }
 
@@ -164,7 +159,6 @@ func EditarDependencia(transaccion *models.EditarDependencia) (alerta []string, 
 		}
 	}()
 	alerta = append(alerta, "Success")
-	fmt.Println("ejecuta la función")
 	var dependencia models.Dependencia
 	url := beego.AppConfig.String("OikosCrudUrl") + "dependencia/" + strconv.Itoa(transaccion.DependenciaId)
 	if err := request.GetJson(url, &dependencia); err != nil || dependencia.Id == 0 {
@@ -250,7 +244,6 @@ func EditarDependencia(transaccion *models.EditarDependencia) (alerta []string, 
 
 	}
 
-	fmt.Println("finaliza la ejecución")
 	return alerta, outputError
 }
 
