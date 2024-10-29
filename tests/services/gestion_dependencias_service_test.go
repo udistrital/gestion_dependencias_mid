@@ -13,14 +13,38 @@ import (
     "strconv"
 )
 
+const signoSlash = "//////////////////////////////////"
+const datoPruebaUno = "Dependencia 1"
+const datoPruebaDos = "Dependencia 2"
+const datoPruebaTres = "2023-01-10T09:00:00Z"
+const datoPruebaCuatro = "Tipo 1"
+const datoPruebaCinco = "Dependencia Editada"
+const datoPruebaSeis = "test@example.com"
+const datoPruebaSiete = "Tipo 2"
+const datoPruebaOcho = "Dependencia Original"
+const datoPruebaNueve = "original@example.com"
+const datoPruebaDiez = "Caso 1: Filtrar correctamente los hijos de la Rectoría"
+const datoPruebaOnce = "Dependencia 3"
+const datoPruebaDoce = "VICERRECTORIA ACADEMICA"
+const datoPruebaTrece = "VICERRECTORIA ADMINISTRATIVA"
+const datoPruebaCatorce = "OTRA DEPENDENCIA"
+const mensajeErrorUno = "URL no válida"
+const mensajeErrorDos = "URL no esperada"
+const mensajeErrorTres = "Se esperaba que no se generara un panic, pero se obtuvo: "
+const mensajeErrorCuatro = "error al intentar obtener JSON"
+const mensajeErrorCinco = "Panic capturado correctamente: "
+const mensajeErrorSeis = "Se esperaba un panic de tipo string, pero se obtuvo: "
+const mensajeErrorSiete = "Se esperaba un panic, pero no ocurrió"
+const mensajeErrorOcho = "error al intentar enviar JSON"
+
 func TestBuscarDependencia(t *testing.T) {
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
     t.Log("Inicio TestBuscarDependencia")
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
 
 	t.Run("Caso 1: Todos los datos están completos", func(t *testing.T) {
 		transaccion := &models.BusquedaDependencia{
-			NombreDependencia: "Dependencia 1",
+			NombreDependencia: datoPruebaUno,
 			TipoDependenciaId: 1,
 			FacultadId:        2,
 			VicerrectoriaId:   3,
@@ -28,8 +52,8 @@ func TestBuscarDependencia(t *testing.T) {
 		}
 
 		dependencias := []models.Dependencia{
-			{Id: 1, Nombre: "Dependencia 1"},
-			{Id: 2, Nombre: "Dependencia 2"},
+			{Id: 1, Nombre: datoPruebaUno},
+			{Id: 2, Nombre: datoPruebaDos},
 		}
 
 		dependenciaTipoDependencia := []models.DependenciaTipoDependencia{
@@ -37,7 +61,7 @@ func TestBuscarDependencia(t *testing.T) {
 		}
 
 		monkey.Patch(request.GetJson, func(url string, target interface{}) error {
-			if strings.Contains(url, "dependencia?query=Nombre:") {
+			if strings.Contains(url, "dependencia?query=Nombre:") || strings.Contains(url, "dependencia?query=Activo:") {
 				data, _ := json.Marshal(dependencias)
 				_ = json.Unmarshal(data, target)
 			} else if strings.Contains(url, "dependencia_tipo_dependencia?query=TipoDependenciaId") {
@@ -50,11 +74,8 @@ func TestBuscarDependencia(t *testing.T) {
 					data, _ := json.Marshal([]models.Dependencia{dependencias[1]})
 					_ = json.Unmarshal(data, target)
 				}
-			} else if strings.Contains(url, "dependencia?query=Activo:") {
-				data, _ := json.Marshal(dependencias)
-				_ = json.Unmarshal(data, target)
 			} else {
-				return fmt.Errorf("URL no válida")
+				return fmt.Errorf(mensajeErrorUno)
 			}
 			return nil
 		})
@@ -99,9 +120,9 @@ func TestBuscarDependencia(t *testing.T) {
 }
 
 func TestCrearRespuestaBusqueda(t *testing.T) {
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
     t.Log("Inicio TestCrearRespuestaBusqueda")
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
 
     t.Run("Caso exitoso", func(t *testing.T) {
         // Generación dinámica de datos de prueba
@@ -118,14 +139,14 @@ func TestCrearRespuestaBusqueda(t *testing.T) {
                         TelefonoDependencia:     "321654987",
                         CorreoElectronico:       "info@desarrollo.com",
                         Activo:                  true,
-                        FechaCreacion:           "2023-01-10T09:00:00Z",
-                        FechaModificacion:       "2023-01-10T09:00:00Z",
+                        FechaCreacion:           datoPruebaTres,
+                        FechaModificacion:       datoPruebaTres,
                         DependenciaTipoDependencia: []*models.DependenciaTipoDependencia{
                             {
                                 Activo: true,
                                 TipoDependenciaId: &models.TipoDependencia{
                                     Id:     1,
-                                    Nombre: "Tipo 1",
+                                    Nombre: datoPruebaCuatro,
                                 },
                             },
                         },
@@ -145,7 +166,7 @@ func TestCrearRespuestaBusqueda(t *testing.T) {
                 }
                 return nil
             }
-            return errors.New("URL no esperada")
+            return errors.New(mensajeErrorDos)
         })
         defer monkey.UnpatchAll()
 
@@ -195,7 +216,7 @@ func TestCrearRespuestaBusqueda(t *testing.T) {
                 *target.(*[]models.DependenciaPadre) = []models.DependenciaPadre{}
                 return nil
             }
-            return errors.New("URL no esperada")
+            return errors.New(mensajeErrorDos)
         })
         defer monkey.UnpatchAll()
 
@@ -221,9 +242,9 @@ func TestCrearRespuestaBusqueda(t *testing.T) {
 }
 
 func TestExisteDependencia(t *testing.T) {
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
     t.Log("Inicio TestExisteDependencia")
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
 
     t.Run("Caso 1: La dependencia existe", func(t *testing.T) {
         dependencias := []models.RespuestaBusquedaDependencia{
@@ -238,15 +259,15 @@ func TestExisteDependencia(t *testing.T) {
 }
 
 func TestEditarDependencia(t *testing.T) {
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
     t.Log("Inicio TestEditarDependencia")
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
 
     transaccion := &models.EditarDependencia{
         DependenciaId:        1,
         DependenciaAsociadaId: 2,
-        Nombre:               "Dependencia Editada",
-        CorreoElectronico:    "test@example.com",
+        Nombre:               datoPruebaCinco,
+        CorreoElectronico:    datoPruebaSeis,
         TelefonoDependencia:  "123456789",
         TipoDependenciaId:    []int{1, 2},
     }
@@ -259,18 +280,18 @@ func TestEditarDependencia(t *testing.T) {
             if strings.Contains(url, "dependencia/1") {
                 dependencia := models.Dependencia{
                     Id:                      1,
-                    Nombre:                  "Dependencia Editada",
+                    Nombre:                  datoPruebaCinco,
                     TelefonoDependencia:     "123456789",
-                    CorreoElectronico:       "test@example.com",
+                    CorreoElectronico:       datoPruebaSeis,
                     Activo:                  true,
-                    FechaCreacion:           "2023-01-10T09:00:00Z",
-                    FechaModificacion:       "2023-01-10T09:00:00Z",
+                    FechaCreacion:           datoPruebaTres,
+                    FechaModificacion:       datoPruebaTres,
                     DependenciaTipoDependencia: []*models.DependenciaTipoDependencia{
                         {
                             Activo: true,
                             TipoDependenciaId: &models.TipoDependencia{
                                 Id:     1,
-                                Nombre: "Tipo 1",
+                                Nombre: datoPruebaCuatro,
                             },
                         },
                     },
@@ -283,31 +304,31 @@ func TestEditarDependencia(t *testing.T) {
                         Id: 1,
                         TipoDependenciaId: &models.TipoDependencia{
                             Id:     1,
-                            Nombre: "Tipo 1",
+                            Nombre: datoPruebaCuatro,
                         },
                         DependenciaId: &models.Dependencia{
                             Id: 1,
-                            Nombre: "Dependencia Editada",
+                            Nombre: datoPruebaCinco,
                             Activo: true,
                         },
                         Activo:          true,
-                        FechaCreacion:   "2023-01-10T09:00:00Z",
-                        FechaModificacion: "2023-01-10T09:00:00Z",
+                        FechaCreacion:   datoPruebaTres,
+                        FechaModificacion: datoPruebaTres,
                     },
                     {
                         Id: 2,
                         TipoDependenciaId: &models.TipoDependencia{
                             Id:     2,
-                            Nombre: "Tipo 2",
+                            Nombre: datoPruebaSiete,
                         },
                         DependenciaId: &models.Dependencia{
                             Id: 1,
-                            Nombre: "Dependencia Editada",
+                            Nombre: datoPruebaCinco,
                             Activo: true,
                         },
                         Activo:          true,
-                        FechaCreacion:   "2023-01-10T09:00:00Z",
-                        FechaModificacion: "2023-01-10T09:00:00Z",
+                        FechaCreacion:   datoPruebaTres,
+                        FechaModificacion: datoPruebaTres,
                     },
                 }
                 return nil
@@ -316,7 +337,7 @@ func TestEditarDependencia(t *testing.T) {
                     {
                         Id:              1,
                         PadreId:         &models.Dependencia{Id: 2, Nombre: "Dependencia Padre", Activo: true},
-                        HijaId:          &models.Dependencia{Id: 1, Nombre: "Dependencia Editada", Activo: true},
+                        HijaId:          &models.Dependencia{Id: 1, Nombre: datoPruebaCinco, Activo: true},
                         Activo:          true,
                         FechaCreacion:   "2024-01-01T00:00:00Z",
                         FechaModificacion: "2024-01-02T00:00:00Z",
@@ -337,7 +358,7 @@ func TestEditarDependencia(t *testing.T) {
                 return nil
             }
 
-            return errors.New("URL no esperada")
+            return errors.New(mensajeErrorDos)
         })
 
         monkey.Patch(request.SendJson, func(url, method string, response interface{}, data interface{}) error {
@@ -386,9 +407,9 @@ func TestEditarDependencia(t *testing.T) {
 }
 
 func TestNuevoTipoDependencia(t *testing.T) {
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
     t.Log("Inicio TestNuevoTipoDependencia")
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
 
     t.Run("Caso 1: Creación exitosa de nuevo tipo de dependencia", func(t *testing.T) {
         tipo := 1
@@ -398,21 +419,21 @@ func TestNuevoTipoDependencia(t *testing.T) {
             TelefonoDependencia: "123456789",
             CorreoElectronico:   "prueba@example.com",
             Activo:              true,
-            FechaCreacion:       "2023-01-10T09:00:00Z",
-            FechaModificacion:   "2023-01-10T09:00:00Z",
+            FechaCreacion:       datoPruebaTres,
+            FechaModificacion:   datoPruebaTres,
         }
         tiposRegistrados := []int{2, 3}
         dependenciaOriginal := models.Dependencia{
             Id:                  1,
-            Nombre:              "Dependencia Original",
+            Nombre:              datoPruebaOcho,
             TelefonoDependencia: "123456789",
-            CorreoElectronico:   "original@example.com",
+            CorreoElectronico:   datoPruebaNueve,
             Activo:              true,
         }
     
         tipoDependencia := models.TipoDependencia{
             Id:     1,
-            Nombre: "Tipo 1",
+            Nombre: datoPruebaCuatro,
         }
     
         monkey.Patch(request.GetJson, func(url string, target interface{}) error {
@@ -420,7 +441,7 @@ func TestNuevoTipoDependencia(t *testing.T) {
                 *target.(*models.TipoDependencia) = tipoDependencia
                 return nil
             }
-            return errors.New("URL no esperada")
+            return errors.New(mensajeErrorDos)
         })
         defer monkey.UnpatchAll()
     
@@ -440,7 +461,7 @@ func TestNuevoTipoDependencia(t *testing.T) {
     
         defer func() {
             if r := recover(); r != nil {
-                t.Errorf("Se esperaba que no se generara un panic, pero se obtuvo: %v", r)
+                t.Errorf(mensajeErrorTres, r)
             }
         }()
     
@@ -473,14 +494,14 @@ func TestNuevoTipoDependencia(t *testing.T) {
         tiposRegistrados := []int{2, 3}
         dependenciaOriginal := models.Dependencia{
             Id:                  1,
-            Nombre:              "Dependencia Original",
+            Nombre:              datoPruebaOcho,
             TelefonoDependencia: "123456789",
-            CorreoElectronico:   "original@example.com",
+            CorreoElectronico:   datoPruebaNueve,
             Activo:              true,
         }
 
         monkey.Patch(request.GetJson, func(url string, target interface{}) error {
-            return errors.New("error al intentar obtener JSON")
+            return errors.New(mensajeErrorCuatro)
         })
         defer monkey.UnpatchAll()
 
@@ -494,15 +515,15 @@ func TestNuevoTipoDependencia(t *testing.T) {
             if r := recover(); r != nil {
                 errorMessage, ok := r.(string)
                 if ok {
-                    t.Logf("Panic capturado correctamente: %v", errorMessage)
-                    if !strings.Contains(errorMessage, "error al intentar obtener JSON") {
+                    t.Logf(mensajeErrorCinco, errorMessage)
+                    if !strings.Contains(errorMessage, mensajeErrorCuatro) {
                         t.Errorf("Se esperaba un mensaje de error relacionado con la obtención de JSON, pero se obtuvo: %v", errorMessage)
                     }
                 } else {
-                    t.Errorf("Se esperaba un panic de tipo string, pero se obtuvo: %v", r)
+                    t.Errorf(mensajeErrorSeis, r)
                 }
             } else {
-                t.Errorf("Se esperaba un panic, pero no ocurrió")
+                t.Errorf(mensajeErrorSiete)
             }
         }()
 
@@ -515,9 +536,9 @@ func TestNuevoTipoDependencia(t *testing.T) {
 }
 
 func TestActualizarDependenciaTipoDependencia(t *testing.T) {
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
     t.Log("Inicio TestActualizarDependenciaTipoDependencia")
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
 
     t.Run("Caso 1: Actualización exitosa de tipo de dependencia", func(t *testing.T) {
         tipo := 1
@@ -527,12 +548,12 @@ func TestActualizarDependenciaTipoDependencia(t *testing.T) {
         tiposOriginales := []models.DependenciaTipoDependencia{}
         dependenciaOriginal := models.Dependencia{
             Id:                  1,
-            Nombre:              "Dependencia Original",
+            Nombre:              datoPruebaOcho,
             TelefonoDependencia: "123456789",
-            CorreoElectronico:   "original@example.com",
+            CorreoElectronico:   datoPruebaNueve,
             Activo:              true,
-            FechaCreacion:       "2023-01-10T09:00:00Z",
-            FechaModificacion:   "2023-01-10T09:00:00Z",
+            FechaCreacion:       datoPruebaTres,
+            FechaModificacion:   datoPruebaTres,
         }
         tiposRegistrados := []int{1, 2}
 
@@ -542,7 +563,7 @@ func TestActualizarDependenciaTipoDependencia(t *testing.T) {
                 Activo: false,
                 TipoDependenciaId: &models.TipoDependencia{
                     Id:     1,
-                    Nombre: "Tipo 1",
+                    Nombre: datoPruebaCuatro,
                 },
             },
         }
@@ -552,7 +573,7 @@ func TestActualizarDependenciaTipoDependencia(t *testing.T) {
                 *target.(*[]models.DependenciaTipoDependencia) = dependenciaTipoDependenciaActual
                 return nil
             }
-            return errors.New("URL no esperada")
+            return errors.New(mensajeErrorDos)
         })
         defer monkey.UnpatchAll()
 
@@ -572,7 +593,7 @@ func TestActualizarDependenciaTipoDependencia(t *testing.T) {
 
         defer func() {
             if r := recover(); r != nil {
-                t.Errorf("Se esperaba que no se generara un panic, pero se obtuvo: %v", r)
+                t.Errorf(mensajeErrorTres, r)
             }
         }()
 
@@ -589,15 +610,15 @@ func TestActualizarDependenciaTipoDependencia(t *testing.T) {
         tiposOriginales := []models.DependenciaTipoDependencia{}
         dependenciaOriginal := models.Dependencia{
             Id:                  1,
-            Nombre:              "Dependencia Original",
+            Nombre:              datoPruebaOcho,
             TelefonoDependencia: "123456789",
-            CorreoElectronico:   "original@example.com",
+            CorreoElectronico:   datoPruebaNueve,
             Activo:              true,
         }
         tiposRegistrados := []int{1, 2}
 
         monkey.Patch(request.GetJson, func(url string, target interface{}) error {
-            return errors.New("error al intentar obtener JSON")
+            return errors.New(mensajeErrorCuatro)
         })
         defer monkey.UnpatchAll()
 
@@ -611,15 +632,15 @@ func TestActualizarDependenciaTipoDependencia(t *testing.T) {
             if r := recover(); r != nil {
                 errorMessage, ok := r.(string)
                 if ok {
-                    t.Logf("Panic capturado correctamente: %v", errorMessage)
-                    if !strings.Contains(errorMessage, "error al intentar obtener JSON") {
+                    t.Logf(mensajeErrorCinco, errorMessage)
+                    if !strings.Contains(errorMessage, mensajeErrorCuatro) {
                         t.Errorf("Se esperaba un mensaje de error relacionado con la obtención de JSON, pero se obtuvo: %v", errorMessage)
                     }
                 } else {
-                    t.Errorf("Se esperaba un panic de tipo string, pero se obtuvo: %v", r)
+                    t.Errorf(mensajeErrorSeis, r)
                 }
             } else {
-                t.Errorf("Se esperaba un panic, pero no ocurrió")
+                t.Errorf(mensajeErrorSiete)
             }
         }()
 
@@ -632,9 +653,9 @@ func TestActualizarDependenciaTipoDependencia(t *testing.T) {
 }
 
 func TestContiene(t *testing.T) {
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
     t.Log("Inicio TestContiene")
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
 
     t.Run("Caso 1: Valor presente en el slice", func(t *testing.T) {
         slice := []int{1, 2, 3, 4, 5}
@@ -655,16 +676,16 @@ func TestContiene(t *testing.T) {
 }
 
 func TestRollbackActualizacionTipoDependencia(t *testing.T) {
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
     t.Log("Inicio TestRollbackActualizacionTipoDependencia")
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
 
     t.Run("Caso 1: Rollback exitoso de actualización de tipos de dependencia", func(t *testing.T) {
         dependencia := models.Dependencia{
             Id:                      1,
-            Nombre:                  "Dependencia Editada",
+            Nombre:                  datoPruebaCinco,
             TelefonoDependencia:     "123456789",
-            CorreoElectronico:       "test@example.com",
+            CorreoElectronico:       datoPruebaSeis,
             Activo:                  true,
         }
 
@@ -675,7 +696,7 @@ func TestRollbackActualizacionTipoDependencia(t *testing.T) {
                 Activo: true,
                 TipoDependenciaId: &models.TipoDependencia{
                     Id:     1,
-                    Nombre: "Tipo 1",
+                    Nombre: datoPruebaCuatro,
                 },
             },
             {
@@ -683,7 +704,7 @@ func TestRollbackActualizacionTipoDependencia(t *testing.T) {
                 Activo: true,
                 TipoDependenciaId: &models.TipoDependencia{
                     Id:     2,
-                    Nombre: "Tipo 2",
+                    Nombre: datoPruebaSiete,
                 },
             },
         }
@@ -692,17 +713,18 @@ func TestRollbackActualizacionTipoDependencia(t *testing.T) {
             if strings.Contains(url, "dependencia_tipo_dependencia/") {
                 return nil
             }
-            return errors.New("URL no esperada")
+            return errors.New(mensajeErrorDos)
         })
         defer monkey.UnpatchAll()
 
         monkey.Patch(services.RollbackDependenciaTipoDependencia, func(dependencia models.Dependencia, tiposRegistrados *[]int) {
+            // Esta función está vacía intencionalmente para simular el comportamiento en pruebas
         })
         defer monkey.UnpatchAll()
 
         defer func() {
             if r := recover(); r != nil {
-                t.Errorf("Se esperaba que no se generara un panic, pero se obtuvo: %v", r)
+                t.Errorf(mensajeErrorTres, r)
             }
         }()
 
@@ -727,17 +749,18 @@ func TestRollbackActualizacionTipoDependencia(t *testing.T) {
                 Activo: true,
                 TipoDependenciaId: &models.TipoDependencia{
                     Id:     1,
-                    Nombre: "Tipo 1",
+                    Nombre: datoPruebaCuatro,
                 },
             },
         }
 
         monkey.Patch(request.SendJson, func(url string, method string, target interface{}, body interface{}) error {
-            return errors.New("error al intentar enviar JSON")
+            return errors.New(mensajeErrorOcho)
         })
         defer monkey.UnpatchAll()
 
         monkey.Patch(services.RollbackDependenciaTipoDependencia, func(dependencia models.Dependencia, tiposRegistrados *[]int) {
+            // Esta función está vacía intencionalmente para simular el comportamiento en pruebas
         })
         defer monkey.UnpatchAll()
 
@@ -745,15 +768,15 @@ func TestRollbackActualizacionTipoDependencia(t *testing.T) {
             if r := recover(); r != nil {
                 errorMessage, ok := r.(string)
                 if ok {
-                    t.Logf("Panic capturado correctamente: %v", errorMessage)
-                    if !strings.Contains(errorMessage, "error al intentar enviar JSON") {
+                    t.Logf(mensajeErrorCinco, errorMessage)
+                    if !strings.Contains(errorMessage, mensajeErrorOcho) {
                         t.Errorf("Se esperaba un mensaje de error relacionado con el envío de JSON, pero se obtuvo: %v", errorMessage)
                     }
                 } else {
-                    t.Errorf("Se esperaba un panic de tipo string, pero se obtuvo: %v", r)
+                    t.Errorf(mensajeErrorSeis, r)
                 }
             } else {
-                t.Errorf("Se esperaba un panic, pero no ocurrió")
+                t.Errorf(mensajeErrorSiete)
             }
         }()
 
@@ -762,25 +785,25 @@ func TestRollbackActualizacionTipoDependencia(t *testing.T) {
 }
 
 func TestRollbackDependenciaTipoDependencia(t *testing.T) {
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
     t.Log("Inicio TestRollbackDependenciaTipoDependencia")
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
 
     t.Run("Caso 1: Rollback exitoso de tipos de dependencia", func(t *testing.T) {
         dependencia := models.Dependencia{
             Id:                      1,
-            Nombre:                  "Dependencia Editada",
+            Nombre:                  datoPruebaCinco,
             TelefonoDependencia:     "123456789",
-            CorreoElectronico:       "test@example.com",
+            CorreoElectronico:       datoPruebaSeis,
             Activo:                  true,
-            FechaCreacion:           "2023-01-10T09:00:00Z",
-            FechaModificacion:       "2023-01-10T09:00:00Z",
+            FechaCreacion:           datoPruebaTres,
+            FechaModificacion:       datoPruebaTres,
             DependenciaTipoDependencia: []*models.DependenciaTipoDependencia{
                 {
                     Activo: true,
                     TipoDependenciaId: &models.TipoDependencia{
                         Id:     1,
-                        Nombre: "Tipo 1",
+                        Nombre: datoPruebaCuatro,
                     },
                 },
             },
@@ -792,7 +815,7 @@ func TestRollbackDependenciaTipoDependencia(t *testing.T) {
             if strings.Contains(url, "dependencia_tipo_dependencia/") {
                 return nil 
             }
-            return errors.New("URL no esperada")
+            return errors.New(mensajeErrorDos)
         })
         defer monkey.UnpatchAll()
 
@@ -803,7 +826,7 @@ func TestRollbackDependenciaTipoDependencia(t *testing.T) {
 
         defer func() {
             if r := recover(); r != nil {
-                t.Errorf("Se esperaba que no se generara un panic, pero se obtuvo: %v", r)
+                t.Errorf(mensajeErrorTres, r)
             }
         }()
         
@@ -826,7 +849,7 @@ func TestRollbackDependenciaTipoDependencia(t *testing.T) {
         tiposRegistrados := []int{1} 
     
         monkey.Patch(request.SendJson, func(url string, method string, target interface{}, body interface{}) error {
-            return errors.New("error al intentar enviar JSON")
+            return errors.New(mensajeErrorOcho)
         })
         defer monkey.UnpatchAll()
     
@@ -840,15 +863,15 @@ func TestRollbackDependenciaTipoDependencia(t *testing.T) {
             if r := recover(); r != nil {
                 errorMessage, ok := r.(string)
                 if ok {
-                    t.Logf("Panic capturado correctamente: %v", errorMessage)
-                    if !strings.Contains(errorMessage, "error al intentar enviar JSON") {
+                    t.Logf(mensajeErrorCinco, errorMessage)
+                    if !strings.Contains(errorMessage, mensajeErrorOcho) {
                         t.Errorf("Se esperaba un mensaje de error relacionado con el envío de JSON, pero se obtuvo: %v", errorMessage)
                     }
                 } else {
-                    t.Errorf("Se esperaba un panic de tipo string, pero se obtuvo: %v", r)
+                    t.Errorf(mensajeErrorSeis, r)
                 }
             } else {
-                t.Errorf("Se esperaba un panic, pero no ocurrió")
+                t.Errorf(mensajeErrorSiete)
             }
         }()
         services.RollbackDependenciaTipoDependencia(dependencia, &tiposRegistrados)
@@ -856,25 +879,25 @@ func TestRollbackDependenciaTipoDependencia(t *testing.T) {
 }
 
 func TestRollbackDependenciaOriginal(t *testing.T) {
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
     t.Log("Inicio TestRollbackDependenciaOriginal")
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
 
     t.Run("Caso 1: Rollback exitoso", func(t *testing.T) {
         dependencia := models.Dependencia{
             Id:                      1,
-            Nombre:                  "Dependencia Editada",
+            Nombre:                  datoPruebaCinco,
             TelefonoDependencia:     "123456789",
-            CorreoElectronico:       "test@example.com",
+            CorreoElectronico:       datoPruebaSeis,
             Activo:                  true,
-            FechaCreacion:           "2023-01-10T09:00:00Z",
-            FechaModificacion:       "2023-01-10T09:00:00Z",
+            FechaCreacion:           datoPruebaTres,
+            FechaModificacion:       datoPruebaTres,
             DependenciaTipoDependencia: []*models.DependenciaTipoDependencia{
                 {
                     Activo: true,
                     TipoDependenciaId: &models.TipoDependencia{
                         Id:     1,
-                        Nombre: "Tipo 1",
+                        Nombre: datoPruebaCuatro,
                     },
                 },
             },
@@ -884,7 +907,7 @@ func TestRollbackDependenciaOriginal(t *testing.T) {
             if strings.Contains(url, fmt.Sprintf("dependencia/%d", dependencia.Id)) {
                 return nil
             }
-            return errors.New("URL no esperada")
+            return errors.New(mensajeErrorDos)
         })
         defer monkey.UnpatchAll()
 
@@ -900,17 +923,17 @@ func TestRollbackDependenciaOriginal(t *testing.T) {
     t.Run("Caso 2: Error al enviar la solicitud", func(t *testing.T) {
         dependencia := models.Dependencia{
             Id:                  1,
-            Nombre:              "Dependencia Editada",
+            Nombre:              datoPruebaCinco,
             TelefonoDependencia: "123456789",
             Activo:                  true,
-            FechaCreacion:           "2023-01-10T09:00:00Z",
-            FechaModificacion:       "2023-01-10T09:00:00Z",
+            FechaCreacion:           datoPruebaTres,
+            FechaModificacion:       datoPruebaTres,
             DependenciaTipoDependencia: []*models.DependenciaTipoDependencia{
                 {
                     Activo: true,
                     TipoDependenciaId: &models.TipoDependencia{
                         Id:     1,
-                        Nombre: "Tipo 1",
+                        Nombre: datoPruebaCuatro,
                     },
                 },
             },
@@ -920,7 +943,7 @@ func TestRollbackDependenciaOriginal(t *testing.T) {
             if strings.Contains(url, fmt.Sprintf("dependencia/%d", dependencia.Id)) {
                 return errors.New("error al enviar la solicitud: campo 'CorreoElectronico' faltante")
             }
-            return errors.New("URL no esperada")
+            return errors.New(mensajeErrorDos)
         })
         defer monkey.UnpatchAll()
     
@@ -928,12 +951,12 @@ func TestRollbackDependenciaOriginal(t *testing.T) {
             if r := recover(); r != nil {
                 expectedPanic := "error al enviar la solicitud: campo 'CorreoElectronico' faltante"
                 if r.(string) == expectedPanic {
-                    t.Logf("Panic capturado correctamente: %v", r)
+                    t.Logf(mensajeErrorCinco, r)
                 } else {
                     t.Logf("Se esperaba panic con mensaje: %v, pero se obtuvo: %v", expectedPanic, r)
                 }
             } else {
-                t.Logf("Se esperaba un panic, pero no ocurrió")
+                t.Logf(mensajeErrorSiete)
             }
         }()
         _ = services.RollbackDependenciaOriginal(dependencia)
@@ -941,20 +964,20 @@ func TestRollbackDependenciaOriginal(t *testing.T) {
 }
 
 func TestOrganigramas(t *testing.T) {
-    t.Log("//////////////////////////////////")
+    t.Log(signoSlash)
 	t.Log("Inicio TestOrganigramas")
-	t.Log("//////////////////////////////////")
+	t.Log(signoSlash)
 
-	t.Run("Caso 1: Filtrar correctamente los hijos de la Rectoría", func(t *testing.T) {
+	t.Run(datoPruebaDiez, func(t *testing.T) {
         dependencias := []models.Dependencia{
-            {Id: 1, Nombre: "Dependencia 1", DependenciaTipoDependencia: []*models.DependenciaTipoDependencia{
-                {Activo: true, TipoDependenciaId: &models.TipoDependencia{Id: 1, Nombre: "Tipo 1"}},
+            {Id: 1, Nombre: datoPruebaUno, DependenciaTipoDependencia: []*models.DependenciaTipoDependencia{
+                {Activo: true, TipoDependenciaId: &models.TipoDependencia{Id: 1, Nombre: datoPruebaCuatro}},
             }},
-            {Id: 2, Nombre: "Dependencia 2", DependenciaTipoDependencia: []*models.DependenciaTipoDependencia{
-                {Activo: true, TipoDependenciaId: &models.TipoDependencia{Id: 2, Nombre: "Tipo 2"}},
+            {Id: 2, Nombre: datoPruebaDos, DependenciaTipoDependencia: []*models.DependenciaTipoDependencia{
+                {Activo: true, TipoDependenciaId: &models.TipoDependencia{Id: 2, Nombre: datoPruebaSiete}},
             }},
-            {Id: 3, Nombre: "Dependencia 3", DependenciaTipoDependencia: []*models.DependenciaTipoDependencia{
-                {Activo: false, TipoDependenciaId: &models.TipoDependencia{Id: 1, Nombre: "Tipo 1"}},
+            {Id: 3, Nombre: datoPruebaOnce, DependenciaTipoDependencia: []*models.DependenciaTipoDependencia{
+                {Activo: false, TipoDependenciaId: &models.TipoDependencia{Id: 1, Nombre: datoPruebaCuatro}},
             }},
         }
 
@@ -971,7 +994,7 @@ func TestOrganigramas(t *testing.T) {
                 data, _ := json.Marshal(dependenciasPadre)
                 _ = json.Unmarshal(data, target)
             } else {
-                return errors.New("URL no válida")
+                return errors.New(mensajeErrorUno)
             }
             return nil
         })
@@ -1016,11 +1039,11 @@ func TestOrganigramas(t *testing.T) {
 
     t.Run("Caso 2: Datos incompletos para dependencias", func(t *testing.T) {
         dependencias := []models.Dependencia{
-            {Id: 1, Nombre: "Dependencia 1", DependenciaTipoDependencia: []*models.DependenciaTipoDependencia{
-                {Activo: true, TipoDependenciaId: &models.TipoDependencia{Id: 1, Nombre: "Tipo 1"}},
+            {Id: 1, Nombre: datoPruebaUno, DependenciaTipoDependencia: []*models.DependenciaTipoDependencia{
+                {Activo: true, TipoDependenciaId: &models.TipoDependencia{Id: 1, Nombre: datoPruebaCuatro}},
             }},
-            {Id: 2, Nombre: "Dependencia 2", DependenciaTipoDependencia: []*models.DependenciaTipoDependencia{
-                {Activo: true, TipoDependenciaId: &models.TipoDependencia{Id: 2, Nombre: "Tipo 2"}},
+            {Id: 2, Nombre: datoPruebaDos, DependenciaTipoDependencia: []*models.DependenciaTipoDependencia{
+                {Activo: true, TipoDependenciaId: &models.TipoDependencia{Id: 2, Nombre: datoPruebaSiete}},
             }},
             {Id: 3, Nombre: "", DependenciaTipoDependencia: []*models.DependenciaTipoDependencia{
                 {Activo: false, TipoDependenciaId: nil},
@@ -1040,7 +1063,7 @@ func TestOrganigramas(t *testing.T) {
                 data, _ := json.Marshal(dependenciasPadre)
                 _ = json.Unmarshal(data, target)
             } else {
-                return errors.New("URL no válida")
+                return errors.New(mensajeErrorUno)
             }
             return nil
         })
@@ -1090,13 +1113,13 @@ func TestOrganigramas(t *testing.T) {
 }
 
 func TestCopiarOrganigrama(t *testing.T) {
-	t.Log("//////////////////////////////////")
+	t.Log(signoSlash)
 	t.Log("Inicio TestCopiarOrganigrama")
-	t.Log("//////////////////////////////////")
+	t.Log(signoSlash)
 
-	dependencia1 := models.Dependencia{Id: 1, Nombre: "Dependencia 1"}
-	dependencia2 := models.Dependencia{Id: 2, Nombre: "Dependencia 2"}
-	dependencia3 := models.Dependencia{Id: 3, Nombre: "Dependencia 3"}
+	dependencia1 := models.Dependencia{Id: 1, Nombre: datoPruebaUno}
+	dependencia2 := models.Dependencia{Id: 2, Nombre: datoPruebaDos}
+	dependencia3 := models.Dependencia{Id: 3, Nombre: datoPruebaOnce}
 
 	organigramaOriginal := []*models.Organigrama{
 		{
@@ -1153,16 +1176,16 @@ func TestCopiarOrganigrama(t *testing.T) {
 }
 
 func TestFiltrarOrganigrama(t *testing.T) {
-	t.Log("//////////////////////////////////")
+	t.Log(signoSlash)
 	t.Log("Inicio TestFiltrarOrganigrama")
-	t.Log("//////////////////////////////////")
+	t.Log(signoSlash)
 
-	dependencia1 := &models.Dependencia{Id: 1, Nombre: "Dependencia 1"}
-	dependencia2 := &models.Dependencia{Id: 2, Nombre: "Dependencia 2"}
-	dependencia3 := &models.Dependencia{Id: 3, Nombre: "Dependencia 3"}
+	dependencia1 := &models.Dependencia{Id: 1, Nombre: datoPruebaUno}
+	dependencia2 := &models.Dependencia{Id: 2, Nombre: datoPruebaDos}
+	dependencia3 := &models.Dependencia{Id: 3, Nombre: datoPruebaOnce}
 	dependencia4 := &models.Dependencia{Id: 4, Nombre: "Dependencia 4"}
 
-	dependencias_padre := []models.DependenciaPadre{
+	dependenciasPadre := []models.DependenciaPadre{
 		{HijaId: dependencia1},
 		{HijaId: dependencia2},
 	}
@@ -1193,12 +1216,12 @@ func TestFiltrarOrganigrama(t *testing.T) {
 	}
 
 	t.Run("Caso 1: Filtrar organigrama con hijos y/o dependencias padre", func(t *testing.T) {
-		monkey.Patch(services.TienePadre, func(nodo *models.Organigrama, dependencias_padre []models.DependenciaPadre) bool {
+		monkey.Patch(services.TienePadre, func(nodo *models.Organigrama, dependenciasPadre []models.DependenciaPadre) bool {
 			return true 
 		})
 		defer monkey.UnpatchAll()
 
-		resultado := services.FiltrarOrganigrama(organigramaCumpleCriterios, dependencias_padre)
+		resultado := services.FiltrarOrganigrama(organigramaCumpleCriterios, dependenciasPadre)
 
 		if len(resultado) != 3 {
 			t.Errorf("Se esperaban 3 elementos, pero se obtuvieron: %d", len(resultado))
@@ -1213,12 +1236,12 @@ func TestFiltrarOrganigrama(t *testing.T) {
 	}
 
 	t.Run("Caso 2: Filtrar organigrama sin hijos y sin dependencias padre", func(t *testing.T) {
-		monkey.Patch(services.TienePadre, func(nodo *models.Organigrama, dependencias_padre []models.DependenciaPadre) bool {
+		monkey.Patch(services.TienePadre, func(nodo *models.Organigrama, dependenciasPadre []models.DependenciaPadre) bool {
 			return false 
 		})
 		defer monkey.UnpatchAll()
 
-		resultado := services.FiltrarOrganigrama(organigramaSinCriterios, dependencias_padre)
+		resultado := services.FiltrarOrganigrama(organigramaSinCriterios, dependenciasPadre)
 
 		if len(resultado) != 0 {
 			t.Errorf("Se esperaba un organigrama vacío, pero se obtuvieron: %d", len(resultado))
@@ -1227,25 +1250,25 @@ func TestFiltrarOrganigrama(t *testing.T) {
 }
 
 func TestTienePadre(t *testing.T) {
-	t.Log("//////////////////////////////////")
+	t.Log(signoSlash)
 	t.Log("Inicio TestTienePadre")
-	t.Log("//////////////////////////////////")
+	t.Log(signoSlash)
 
-	dependencia1 := &models.Dependencia{Id: 1, Nombre: "Dependencia 1"}
-	dependencia2 := &models.Dependencia{Id: 2, Nombre: "Dependencia 2"}
-	dependencia3 := &models.Dependencia{Id: 3, Nombre: "Dependencia 3"}
+	dependencia1 := &models.Dependencia{Id: 1, Nombre: datoPruebaUno}
+	dependencia2 := &models.Dependencia{Id: 2, Nombre: datoPruebaDos}
+	dependencia3 := &models.Dependencia{Id: 3, Nombre: datoPruebaOnce}
 
 	t.Run("Caso 1: Nodo tiene padre", func(t *testing.T) {
 		nodo := &models.Organigrama{
 			Dependencia: *dependencia1,
 		}
 
-		dependencias_padre := []models.DependenciaPadre{
+		dependenciasPadre := []models.DependenciaPadre{
 			{HijaId: dependencia1},
 			{HijaId: dependencia2},
 		}
 
-		resultado := services.TienePadre(nodo, dependencias_padre)
+		resultado := services.TienePadre(nodo, dependenciasPadre)
 
 		if !resultado {
 			t.Errorf("Se esperaba que el nodo tuviera padre, pero no lo tiene")
@@ -1257,12 +1280,12 @@ func TestTienePadre(t *testing.T) {
 			Dependencia: *dependencia3,
 		}
 
-		dependencias_padre := []models.DependenciaPadre{
+		dependenciasPadre := []models.DependenciaPadre{
 			{HijaId: dependencia1},
 			{HijaId: dependencia2},
 		}
 
-		resultado := services.TienePadre(nodo, dependencias_padre)
+		resultado := services.TienePadre(nodo, dependenciasPadre)
 
 		if resultado {
 			t.Errorf("Se esperaba que el nodo no tuviera padre, pero lo tiene")
@@ -1271,28 +1294,28 @@ func TestTienePadre(t *testing.T) {
 }
 
 func TestPodarOrganigramaAcademico(t *testing.T) {
-	t.Log("//////////////////////////////////")
+	t.Log(signoSlash)
 	t.Log("Inicio TestPodarOrganigramaAcademico")
-	t.Log("//////////////////////////////////")
+	t.Log(signoSlash)
 
-	t.Run("Caso 1: Filtrar correctamente los hijos de la Rectoría", func(t *testing.T) {
+	t.Run(datoPruebaDiez, func(t *testing.T) {
 		organigrama := []*models.Organigrama{
 			{
 				Dependencia: models.Dependencia{Nombre: "RECTORIA"},
 				Hijos: []*models.Organigrama{
 					{
-						Dependencia: models.Dependencia{Nombre: "VICERRECTORIA ACADEMICA"},
+						Dependencia: models.Dependencia{Nombre: datoPruebaDoce},
 					},
 					{
-						Dependencia: models.Dependencia{Nombre: "VICERRECTORIA ADMINISTRATIVA"},
+						Dependencia: models.Dependencia{Nombre: datoPruebaTrece},
 					},
 				},
 			},
 			{
-				Dependencia: models.Dependencia{Nombre: "OTRA DEPENDENCIA"},
+				Dependencia: models.Dependencia{Nombre: datoPruebaCatorce},
 				Hijos: []*models.Organigrama{
 					{
-						Dependencia: models.Dependencia{Nombre: "VICERRECTORIA ACADEMICA"},
+						Dependencia: models.Dependencia{Nombre: datoPruebaDoce},
 					},
 				},
 			},
@@ -1304,7 +1327,7 @@ func TestPodarOrganigramaAcademico(t *testing.T) {
 			t.Errorf("Se esperaban 1 hijo después de podar, pero se obtuvieron: %d", len(resultado[0].Hijos))
 		}
 
-		if resultado[0].Hijos[0].Dependencia.Nombre != "VICERRECTORIA ACADEMICA" {
+		if resultado[0].Hijos[0].Dependencia.Nombre != datoPruebaDoce {
 			t.Errorf("Se esperaba que el hijo fuera 'VICERRECTORIA ACADEMICA', pero se obtuvo: %s", resultado[0].Hijos[0].Dependencia.Nombre)
 		}
 
@@ -1316,10 +1339,10 @@ func TestPodarOrganigramaAcademico(t *testing.T) {
 	t.Run("Caso 2: Sin dependencias de tipo 'RECTORIA'", func(t *testing.T) {
 		organigrama := []*models.Organigrama{
 			{
-				Dependencia: models.Dependencia{Nombre: "OTRA DEPENDENCIA"},
+				Dependencia: models.Dependencia{Nombre: datoPruebaCatorce},
 				Hijos: []*models.Organigrama{
 					{
-						Dependencia: models.Dependencia{Nombre: "VICERRECTORIA ACADEMICA"},
+						Dependencia: models.Dependencia{Nombre: datoPruebaDoce},
 					},
 				},
 			},
@@ -1334,28 +1357,28 @@ func TestPodarOrganigramaAcademico(t *testing.T) {
 }
 
 func TestPodarOrganigramaAdministrativo(t *testing.T) {
-	t.Log("//////////////////////////////////")
+	t.Log(signoSlash)
 	t.Log("Inicio TestPodarOrganigramaAdministrativo")
-	t.Log("//////////////////////////////////")
+	t.Log(signoSlash)
 
-	t.Run("Caso 1: Filtrar correctamente los hijos de la Rectoría", func(t *testing.T) {
+	t.Run(datoPruebaDiez, func(t *testing.T) {
 		organigrama := []*models.Organigrama{
 			{
 				Dependencia: models.Dependencia{Nombre: "RECTORIA"},
 				Hijos: []*models.Organigrama{
 					{
-						Dependencia: models.Dependencia{Nombre: "VICERRECTORIA ACADEMICA"},
+						Dependencia: models.Dependencia{Nombre: datoPruebaDoce},
 					},
 					{
-						Dependencia: models.Dependencia{Nombre: "VICERRECTORIA ADMINISTRATIVA"},
+						Dependencia: models.Dependencia{Nombre: datoPruebaTrece},
 					},
 				},
 			},
 			{
-				Dependencia: models.Dependencia{Nombre: "OTRA DEPENDENCIA"},
+				Dependencia: models.Dependencia{Nombre: datoPruebaCatorce},
 				Hijos: []*models.Organigrama{
 					{
-						Dependencia: models.Dependencia{Nombre: "VICERRECTORIA ACADEMICA"},
+						Dependencia: models.Dependencia{Nombre: datoPruebaDoce},
 					},
 				},
 			},
@@ -1367,7 +1390,7 @@ func TestPodarOrganigramaAdministrativo(t *testing.T) {
 			t.Errorf("Se esperaban 1 hijo después de podar, pero se obtuvieron: %d", len(resultado[0].Hijos))
 		}
 
-		if resultado[0].Hijos[0].Dependencia.Nombre != "VICERRECTORIA ADMINISTRATIVA" {
+		if resultado[0].Hijos[0].Dependencia.Nombre != datoPruebaTrece {
 			t.Errorf("Se esperaba que el hijo fuera 'VICERRECTORIA ADMINISTRATIVA', pero se obtuvo: %s", resultado[0].Hijos[0].Dependencia.Nombre)
 		}
 
@@ -1379,10 +1402,10 @@ func TestPodarOrganigramaAdministrativo(t *testing.T) {
 	t.Run("Caso 2: Sin dependencias de tipo 'RECTORIA'", func(t *testing.T) {
 		organigrama := []*models.Organigrama{
 			{
-				Dependencia: models.Dependencia{Nombre: "OTRA DEPENDENCIA"},
+				Dependencia: models.Dependencia{Nombre: datoPruebaCatorce},
 				Hijos: []*models.Organigrama{
 					{
-						Dependencia: models.Dependencia{Nombre: "VICERRECTORIA ACADEMICA"},
+						Dependencia: models.Dependencia{Nombre: datoPruebaDoce},
 					},
 				},
 			},
