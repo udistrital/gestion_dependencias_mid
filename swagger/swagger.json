@@ -1,0 +1,269 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "beego Test API",
+        "description": "beego has a very cool tools to autogenerate documents for your API",
+        "version": "1.0.0",
+        "termsOfService": "http://beego.me/",
+        "contact": {
+            "email": "astaxie@gmail.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    },
+    "basePath": "/v1",
+    "paths": {
+        "/gestion_dependencias_mid/BuscarDependencia": {
+            "post": {
+                "tags": [
+                    "gestion_dependencias_mid"
+                ],
+                "description": "Buscar dependencia",
+                "operationId": "GestionDependenciasController.BuscarDependencia",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Buscar Dependencia content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{init}"
+                    },
+                    "400": {
+                        "description": "the request contains incorrect syntax"
+                    }
+                }
+            }
+        },
+        "/gestion_dependencias_mid/EditarDependencia": {
+            "post": {
+                "tags": [
+                    "gestion_dependencias_mid"
+                ],
+                "description": "Editar dependencia",
+                "operationId": "GestionDependenciasController.EditarDependencia",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Editar Dependencia content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{init}"
+                    },
+                    "400": {
+                        "description": "the request contains incorrect syntax"
+                    }
+                }
+            }
+        },
+        "/gestion_dependencias_mid/Organigramas": {
+            "get": {
+                "tags": [
+                    "gestion_dependencias_mid"
+                ],
+                "description": "Organigramas de Dependencias",
+                "operationId": "GestionDependenciasController.Organigramas",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Organigramas"
+                        }
+                    },
+                    "400": {
+                        "description": "the request contains incorrect syntax"
+                    }
+                }
+            }
+        },
+        "/gestion_dependencias_mid/RegistrarDependencia": {
+            "post": {
+                "tags": [
+                    "gestion_dependencias_mid"
+                ],
+                "description": "Registrar dependencia",
+                "operationId": "RegistroDependenciasController.RegistrarDependencia",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Registrar Dependencia content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/{}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{init}"
+                    },
+                    "400": {
+                        "description": "the request contains incorrect syntax"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.Dependencia": {
+            "title": "Dependencia",
+            "type": "object",
+            "properties": {
+                "Activo": {
+                    "type": "boolean"
+                },
+                "CorreoElectronico": {
+                    "type": "string"
+                },
+                "DependenciaTipoDependencia": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DependenciaTipoDependencia"
+                    }
+                },
+                "FechaCreacion": {
+                    "type": "string"
+                },
+                "FechaModificacion": {
+                    "type": "string"
+                },
+                "Id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Nombre": {
+                    "type": "string"
+                },
+                "TelefonoDependencia": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.DependenciaTipoDependencia": {
+            "title": "DependenciaTipoDependencia",
+            "type": "object",
+            "properties": {
+                "Activo": {
+                    "type": "boolean"
+                },
+                "DependenciaId": {
+                    "$ref": "#/definitions/models.Dependencia"
+                },
+                "FechaCreacion": {
+                    "type": "string"
+                },
+                "FechaModificacion": {
+                    "type": "string"
+                },
+                "Id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "TipoDependenciaId": {
+                    "$ref": "#/definitions/models.TipoDependencia"
+                }
+            }
+        },
+        "models.Organigrama": {
+            "title": "Organigrama",
+            "type": "object",
+            "properties": {
+                "Dependencia": {
+                    "$ref": "#/definitions/models.Dependencia"
+                },
+                "Hijos": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Organigrama"
+                    }
+                },
+                "Tipo": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "models.Organigramas": {
+            "title": "Organigramas",
+            "type": "object",
+            "properties": {
+                "Academico": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Organigrama"
+                    }
+                },
+                "Administrativo": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Organigrama"
+                    }
+                },
+                "General": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Organigrama"
+                    }
+                }
+            }
+        },
+        "models.TipoDependencia": {
+            "title": "TipoDependencia",
+            "type": "object",
+            "properties": {
+                "Activo": {
+                    "type": "boolean"
+                },
+                "CodigoAbreviacion": {
+                    "type": "string"
+                },
+                "Descripcion": {
+                    "type": "string"
+                },
+                "FechaCreacion": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "FechaModificacion": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "Id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Nombre": {
+                    "type": "string"
+                }
+            }
+        },
+        "{}": {
+            "title": "{}",
+            "type": "object"
+        }
+    },
+    "tags": [
+        {
+            "name": "gestion_dependencias_mid",
+            "description": "GestionDependenciasController operations for GestionDependencias\n"
+        }
+    ]
+}
