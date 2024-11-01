@@ -14,17 +14,18 @@ import (
 	"time"
 )
 
-const signoSlash = "//////////////////////////////////"
-const mensajeErrorUno = "URL no esperada"
-const mensajeErrorDos = "Panic capturado correctamente: "
-const mensajeErrorTres = "Se esperaba un panic de tipo string, pero se obtuvo: "
-const mensajeErrorCuatro = "Se esperaba un panic, pero no ocurrió"
-const mensajeErrorCinco = "Se esperaba un outputError nulo, pero se obtuvo: "
+const separadorSlash = "//////////////////////////////////";
+const errorUrlInesperada = "URL no esperada";
+const mensajePanicCapturado = "Panic capturado correctamente: ";
+const errorPanicTipoString = "Se esperaba un panic de tipo string, pero se obtuvo: ";
+const errorPanicFaltante = "Se esperaba un panic, pero no ocurrió";
+const errorOutputEsperadoNulo = "Se esperaba un outputError nulo, pero se obtuvo: ";
+
 
 func TestRegistrarDependencia(t *testing.T) {
-    t.Log(signoSlash)
+    t.Log(separadorSlash)
     t.Log("Inicio TestRegistrarDependencia")
-    t.Log(signoSlash)
+    t.Log(separadorSlash)
 
     t.Run("Caso 1: Registro exitoso de dependencia", func(t *testing.T) {
         transaccion := &models.NuevaDependencia{
@@ -48,7 +49,7 @@ func TestRegistrarDependencia(t *testing.T) {
                 *target.(*models.Dependencia) = models.Dependencia{Id: transaccion.DependenciaAsociadaId}
                 return nil
             }
-            return errors.New(mensajeErrorUno)
+            return errors.New(errorUrlInesperada)
         })
         defer monkey.Unpatch(request.GetJson)
 
@@ -64,7 +65,7 @@ func TestRegistrarDependencia(t *testing.T) {
                 *target.(*map[string]interface{}) = map[string]interface{}{"Id": float64(30)}
                 return nil
             }
-            return errors.New(mensajeErrorUno)
+            return errors.New(errorUrlInesperada)
         })
         defer monkey.Unpatch(request.SendJson)
 
@@ -149,9 +150,9 @@ func TestRegistrarDependencia(t *testing.T) {
 }
 
 func TestVerificarExistenciaTipo(t *testing.T) {
-    t.Log(signoSlash)
+    t.Log(separadorSlash)
     t.Log("Inicio TestVerificarExistenciaTipo")
-    t.Log(signoSlash)
+    t.Log(separadorSlash)
 
     t.Run("Caso 1: Tipo de dependencia existe", func(t *testing.T) {
         tipoId := 1
@@ -171,7 +172,7 @@ func TestVerificarExistenciaTipo(t *testing.T) {
                 *tipoDependenciaPtr = expectedTipo                      
                 return nil
             }
-            return errors.New(mensajeErrorUno)
+            return errors.New(errorUrlInesperada)
         })
         defer monkey.UnpatchAll()
 
@@ -195,15 +196,15 @@ func TestVerificarExistenciaTipo(t *testing.T) {
             if r := recover(); r != nil {
                 errorMessage, ok := r.(string)
                 if ok {
-                    t.Logf(mensajeErrorDos, errorMessage)
+                    t.Logf(mensajePanicCapturado, errorMessage)
                     if !strings.Contains(errorMessage, "Tipo de dependencia no encontrado") {
                         t.Errorf("Se esperaba un mensaje de error relacionado con tipo no encontrado, pero se obtuvo: %v", errorMessage)
                     }
                 } else {
-                    t.Errorf(mensajeErrorTres, r)
+                    t.Errorf(errorPanicTipoString, r)
                 }
             } else {
-                t.Errorf(mensajeErrorCuatro)
+                t.Errorf(errorPanicFaltante)
             }
         }()
 
@@ -212,9 +213,9 @@ func TestVerificarExistenciaTipo(t *testing.T) {
 }
 
 func TestRollbackDependenciaCreada(t *testing.T) {
-    t.Log(signoSlash)
+    t.Log(separadorSlash)
     t.Log("Inicio TestRollbackDependenciaCreada")
-    t.Log(signoSlash)
+    t.Log(separadorSlash)
 
     t.Run("Caso 1: Rollback exitoso de dependencia creada", func(t *testing.T) {
         transaccion := &models.Creaciones{
@@ -227,7 +228,7 @@ func TestRollbackDependenciaCreada(t *testing.T) {
             if strings.Contains(url, "dependencia/1") && method == "DELETE" {
                 return nil 
             }
-            return errors.New(mensajeErrorUno)
+            return errors.New(errorUrlInesperada)
         })
         defer monkey.UnpatchAll()
 
@@ -240,7 +241,7 @@ func TestRollbackDependenciaCreada(t *testing.T) {
         outputError := services.RollbackDependenciaCreada(transaccion)
 
         if outputError != nil {
-            t.Errorf(mensajeErrorCinco, outputError)
+            t.Errorf(errorOutputEsperadoNulo, outputError)
         }
 
         t.Log("Rollback de dependencia ejecutado exitosamente sin errores")
@@ -261,15 +262,15 @@ func TestRollbackDependenciaCreada(t *testing.T) {
             if r := recover(); r != nil {
                 errorMessage, ok := r.(string)
                 if ok {
-                    t.Logf(mensajeErrorDos, errorMessage)
+                    t.Logf(mensajePanicCapturado, errorMessage)
                     if !strings.Contains(errorMessage, "Rollback de dependencia") {
                         t.Errorf("Se esperaba un mensaje de error relacionado con el rollback, pero se obtuvo: %v", errorMessage)
                     }
                 } else {
-                    t.Errorf(mensajeErrorTres, r)
+                    t.Errorf(errorPanicTipoString, r)
                 }
             } else {
-                t.Errorf(mensajeErrorCuatro)
+                t.Errorf(errorPanicFaltante)
             }
         }()
 
@@ -278,9 +279,9 @@ func TestRollbackDependenciaCreada(t *testing.T) {
 }
 
 func TestRollbackDependenciaTipoDependenciaCreada(t *testing.T) {
-    t.Log(signoSlash)
+    t.Log(separadorSlash)
     t.Log("Inicio TestRollbackDependenciaTipoDependenciaCreada")
-    t.Log(signoSlash)
+    t.Log(separadorSlash)
 
     t.Run("Caso 1: Rollback exitoso de tipo de dependencia", func(t *testing.T) {
         transaccion := &models.Creaciones{
@@ -293,14 +294,14 @@ func TestRollbackDependenciaTipoDependenciaCreada(t *testing.T) {
             } else if strings.Contains(url, "dependencia/") {
                 return nil 
             }
-            return errors.New(mensajeErrorUno) // Para URLs no reconocidas
+            return errors.New(errorUrlInesperada) // Para URLs no reconocidas
         })
         defer monkey.UnpatchAll()
 
         outputError := services.RollbackDependenciaTipoDependenciaCreada(transaccion)
 
         if outputError != nil {
-            t.Errorf(mensajeErrorCinco, outputError)
+            t.Errorf(errorOutputEsperadoNulo, outputError)
         }
 
         t.Log("Rollback de tipo de dependencia ejecutado exitosamente sin errores")
@@ -315,7 +316,7 @@ func TestRollbackDependenciaTipoDependenciaCreada(t *testing.T) {
             if method == "DELETE" && strings.Contains(url, "dependencia_tipo_dependencia/1") {
                 return errors.New("Error al eliminar tipo de dependencia") 
             }
-            return errors.New(mensajeErrorUno) 
+            return errors.New(errorUrlInesperada) 
         })
         defer monkey.UnpatchAll()
 
@@ -323,15 +324,15 @@ func TestRollbackDependenciaTipoDependenciaCreada(t *testing.T) {
             if r := recover(); r != nil {
                 errorMessage, ok := r.(string)
                 if ok {
-                    t.Logf(mensajeErrorDos, errorMessage)
+                    t.Logf(mensajePanicCapturado, errorMessage)
                     if !strings.Contains(errorMessage, "Rollback de dependencia tipo dependencia") {
                         t.Errorf("Se esperaba un mensaje de error relacionado con rollback, pero se obtuvo: %v", errorMessage)
                     }
                 } else {
-                    t.Errorf(mensajeErrorTres, r)
+                    t.Errorf(errorPanicTipoString, r)
                 }
             } else {
-                t.Errorf(mensajeErrorCuatro)
+                t.Errorf(errorPanicFaltante)
             }
         }()
 
@@ -340,9 +341,9 @@ func TestRollbackDependenciaTipoDependenciaCreada(t *testing.T) {
 }
 
 func TestRollbackDependenciaPadreCreada(t *testing.T) {
-    t.Log(signoSlash)
+    t.Log(separadorSlash)
     t.Log("Inicio TestRollbackDependenciaPadreCreada")
-    t.Log(signoSlash)
+    t.Log(separadorSlash)
 
     t.Run("Caso 1: Rollback exitoso de dependencia padre", func(t *testing.T) {
         transaccion := &models.Creaciones{
@@ -354,7 +355,7 @@ func TestRollbackDependenciaPadreCreada(t *testing.T) {
             if method == "DELETE" && url == beego.AppConfig.String("OikosCrudUrl")+"dependencia_padre/1" {
                 return nil 
             }
-            return errors.New(mensajeErrorUno) 
+            return errors.New(errorUrlInesperada) 
         })
         defer monkey.Unpatch(request.SendJson)
 
@@ -366,7 +367,7 @@ func TestRollbackDependenciaPadreCreada(t *testing.T) {
         outputError := services.RollbackDependenciaPadreCreada(transaccion)
 
         if outputError != nil {
-            t.Errorf(mensajeErrorCinco, outputError)
+            t.Errorf(errorOutputEsperadoNulo, outputError)
         }
 
         t.Log("Rollback de dependencia padre ejecutado exitosamente sin errores")
@@ -381,7 +382,7 @@ func TestRollbackDependenciaPadreCreada(t *testing.T) {
             if method == "DELETE" && url == beego.AppConfig.String("OikosCrudUrl")+"dependencia_padre/1" {
                 return errors.New("Error al eliminar dependencia padre") 
             }
-            return errors.New(mensajeErrorUno)
+            return errors.New(errorUrlInesperada)
         })
         defer monkey.Unpatch(request.SendJson)
 
@@ -394,15 +395,15 @@ func TestRollbackDependenciaPadreCreada(t *testing.T) {
             if r := recover(); r != nil {
                 errorMessage, ok := r.(string)
                 if ok {
-                    t.Logf(mensajeErrorDos, errorMessage)
+                    t.Logf(mensajePanicCapturado, errorMessage)
                     if !strings.Contains(errorMessage, "Rollback de dependencia padre") {
                         t.Errorf("Se esperaba un mensaje de error relacionado con rollback, pero se obtuvo: %v", errorMessage)
                     }
                 } else {
-                    t.Errorf(mensajeErrorTres, r)
+                    t.Errorf(errorPanicTipoString, r)
                 }
             } else {
-                t.Errorf(mensajeErrorCuatro)
+                t.Errorf(errorPanicFaltante)
             }
         }()
 
