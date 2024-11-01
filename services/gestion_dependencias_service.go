@@ -3,7 +3,7 @@ package services
 import (
 	"net/url"
 	"strconv"
-	"fmt"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/udistrital/gestion_dependencias_mid/models"
@@ -208,7 +208,7 @@ func EditarDependencia(transaccion *models.EditarDependencia) (alerta []string, 
 		if !dependenciaTipo.Activo {
 			tiposActualesFalse = append(tiposActualesFalse, tipoID)
 		}
-	} 
+	}
 	var tiposRegistrados []int
 	for _, tipo := range transaccion.TipoDependenciaId {
 		if _, exists := tiposMap[tipo]; exists {
@@ -230,13 +230,12 @@ func EditarDependencia(transaccion *models.EditarDependencia) (alerta []string, 
 	}
 
 	if transaccion.DependenciaAsociadaId != depedencia_padre[0].HijaId.Id {
-		
-		
+
 		depedencia_padre[0].PadreId = &depedencia_padre_nueva
 		depedencia_padre[0].FechaModificacion = time_bogota.TiempoBogotaFormato()
 		url = beego.AppConfig.String("OikosCrudUrl") + "dependencia_padre/" + strconv.Itoa(depedencia_padre[0].Id)
 		var res map[string]interface{}
-		if err := request.SendJson(url, "PUT", &res, depedencia_padre[0]); err != nil || res["Id"] == nil  {
+		if err := request.SendJson(url, "PUT", &res, depedencia_padre[0]); err != nil || res["Id"] == nil {
 			RollbackActualizacionTipoDependencia(dependenciaOriginal, &tiposRegistrados, &tiposOriginales)
 			logs.Error(err)
 			panic(err.Error())
@@ -251,11 +250,10 @@ func NuevoTipoDependencia(tipo int, dependenciaId models.Dependencia, tiposRegis
 	var tipoDependencia models.TipoDependencia
 	url := beego.AppConfig.String("OikosCrudUrl") + "tipo_dependencia/" + strconv.Itoa(tipo)
 	if err := request.GetJson(url, &tipoDependencia); err != nil || tipoDependencia.Id == 0 {
-		RollbackDependenciaTipoDependencia(dependenciaOriginal,tiposRegistrados)
+		RollbackDependenciaTipoDependencia(dependenciaOriginal, tiposRegistrados)
 		logs.Error(err)
 		panic(err.Error())
 	}
-	
 
 	nuevaDependenciaTipoDependencia := models.DependenciaTipoDependencia{
 		TipoDependenciaId: &tipoDependencia,
@@ -267,8 +265,8 @@ func NuevoTipoDependencia(tipo int, dependenciaId models.Dependencia, tiposRegis
 
 	url = beego.AppConfig.String("OikosCrudUrl") + "dependencia_tipo_dependencia"
 	var res map[string]interface{}
-	if err := request.SendJson(url, "POST", &res, nuevaDependenciaTipoDependencia); err != nil || res["Id"] == nil{
-		RollbackDependenciaTipoDependencia(dependenciaOriginal,tiposRegistrados)
+	if err := request.SendJson(url, "POST", &res, nuevaDependenciaTipoDependencia); err != nil || res["Id"] == nil {
+		RollbackDependenciaTipoDependencia(dependenciaOriginal, tiposRegistrados)
 		logs.Error(err)
 		panic(err.Error())
 	}
@@ -277,12 +275,11 @@ func NuevoTipoDependencia(tipo int, dependenciaId models.Dependencia, tiposRegis
 
 }
 
-
-func ActualizarDependenciaTipoDependencia(tipo int, activo bool, dependenciaId int, tiposOriginales *[]models.DependenciaTipoDependencia, dependeciaOriginal models.Dependencia,tiposRegistrados *[]int) {
+func ActualizarDependenciaTipoDependencia(tipo int, activo bool, dependenciaId int, tiposOriginales *[]models.DependenciaTipoDependencia, dependeciaOriginal models.Dependencia, tiposRegistrados *[]int) {
 	var dependenciaTipoDependenciaActual []models.DependenciaTipoDependencia
 	url := beego.AppConfig.String("OikosCrudUrl") + "dependencia_tipo_dependencia?query=dependenciaId:" + strconv.Itoa(dependenciaId) + ",tipoDependenciaId:" + strconv.Itoa(tipo)
 	if err := request.GetJson(url, &dependenciaTipoDependenciaActual); err != nil || len(dependenciaTipoDependenciaActual) == 0 {
-		RollbackActualizacionTipoDependencia(dependeciaOriginal, tiposRegistrados,tiposOriginales)
+		RollbackActualizacionTipoDependencia(dependeciaOriginal, tiposRegistrados, tiposOriginales)
 		logs.Error(err)
 		panic(err.Error())
 	}
@@ -295,7 +292,7 @@ func ActualizarDependenciaTipoDependencia(tipo int, activo bool, dependenciaId i
 	url = beego.AppConfig.String("OikosCrudUrl") + "dependencia_tipo_dependencia/" + strconv.Itoa(dependenciaTipoDependenciaActual[0].Id)
 	var res map[string]interface{}
 	if err := request.SendJson(url, "PUT", &res, dependenciaTipoDependenciaActual[0]); err != nil || res["Id"] == nil {
-		RollbackActualizacionTipoDependencia(dependeciaOriginal, tiposRegistrados,tiposOriginales)
+		RollbackActualizacionTipoDependencia(dependeciaOriginal, tiposRegistrados, tiposOriginales)
 		logs.Error(err)
 		panic(err.Error())
 	}
@@ -311,9 +308,8 @@ func Contiene(slice []int, valor int) bool {
 	return false
 }
 
-
-func RollbackActualizacionTipoDependencia(dependeciaOriginal models.Dependencia, tiposRegistrados *[]int, TiposOriginales *[]models.DependenciaTipoDependencia){
-	for _, tipo := range *TiposOriginales{
+func RollbackActualizacionTipoDependencia(dependeciaOriginal models.Dependencia, tiposRegistrados *[]int, TiposOriginales *[]models.DependenciaTipoDependencia) {
+	for _, tipo := range *TiposOriginales {
 		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia_tipo_dependencia/" + strconv.Itoa(tipo.Id)
 		var res map[string]interface{}
 		if err := request.SendJson(url, "PUT", &res, tipo); err != nil {
@@ -324,11 +320,11 @@ func RollbackActualizacionTipoDependencia(dependeciaOriginal models.Dependencia,
 	RollbackDependenciaTipoDependencia(dependeciaOriginal, tiposRegistrados)
 }
 
-func RollbackDependenciaTipoDependencia(dependeciaOriginal models.Dependencia,tiposRegistrados *[]int){
-	for _, tipo := range *tiposRegistrados{
+func RollbackDependenciaTipoDependencia(dependeciaOriginal models.Dependencia, tiposRegistrados *[]int) {
+	for _, tipo := range *tiposRegistrados {
 		var respuesta map[string]interface{}
 		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia_tipo_dependencia/" + strconv.Itoa(tipo)
-		if err := request.SendJson(url,"DELETE",&respuesta,nil); err != nil{
+		if err := request.SendJson(url, "DELETE", &respuesta, nil); err != nil {
 			panic("Rollback de dependencia tipo dependencia" + err.Error())
 		}
 	}
@@ -345,7 +341,6 @@ func RollbackDependenciaOriginal(dependencia models.Dependencia) (outputError ma
 	}
 	return nil
 }
-
 
 func Organigramas() (organigramas models.Organigramas, outputError map[string]interface{}) {
 	defer func() {
@@ -372,14 +367,14 @@ func Organigramas() (organigramas models.Organigramas, outputError map[string]in
 
 	for _, dep := range dependencias {
 		var tipos []string
-		for _, tipo := range dep.DependenciaTipoDependencia{
-			if (tipo.Activo){
+		for _, tipo := range dep.DependenciaTipoDependencia {
+			if tipo.Activo {
 				tipos = append(tipos, tipo.TipoDependenciaId.Nombre)
 			}
 		}
 		organigramaMap[dep.Id] = &models.Organigrama{
 			Dependencia: dep,
-			Tipo: tipos,
+			Tipo:        tipos,
 		}
 	}
 
@@ -415,7 +410,6 @@ func Organigramas() (organigramas models.Organigramas, outputError map[string]in
 	return organigramas, outputError
 }
 
-
 func CopiarOrganigrama(organigrama []*models.Organigrama) []*models.Organigrama {
 	var copia []*models.Organigrama
 	for _, org := range organigrama {
@@ -429,7 +423,6 @@ func CopiarOrganigrama(organigrama []*models.Organigrama) []*models.Organigrama 
 	return copia
 }
 
-
 func FiltrarOrganigrama(organigrama []*models.Organigrama, dependencias_padre []models.DependenciaPadre) []*models.Organigrama {
 	var filtrado []*models.Organigrama
 	for _, org := range organigrama {
@@ -442,45 +435,44 @@ func FiltrarOrganigrama(organigrama []*models.Organigrama, dependencias_padre []
 }
 
 func TienePadre(nodo *models.Organigrama, dependencias_padre []models.DependenciaPadre) bool {
-	for _, dependencia_padre := range dependencias_padre{
-		if dependencia_padre.HijaId.Id == nodo.Dependencia.Id{
+	for _, dependencia_padre := range dependencias_padre {
+		if dependencia_padre.HijaId.Id == nodo.Dependencia.Id {
 			return true
 		}
 	}
 	return false
 }
 
-
 func PodarOrganigramaAcademico(organigrama []*models.Organigrama) []*models.Organigrama {
 	for _, org := range organigrama {
-        if org.Dependencia.Nombre == "RECTORIA" {
-            var hijosFiltrados []*models.Organigrama
-            for _, hijo := range org.Hijos {
-                if hijo.Dependencia.Nombre == "VICERRECTORIA ACADEMICA"{
-                    hijosFiltrados = append(hijosFiltrados, hijo)
-                }
-            }
-            org.Hijos = hijosFiltrados
-        } else {
-            org.Hijos = PodarOrganigramaAcademico(org.Hijos)
-        }
-    }
-    return organigrama
+		if org.Dependencia.Nombre == "RECTORIA" {
+			var hijosFiltrados []*models.Organigrama
+			for _, hijo := range org.Hijos {
+				if hijo.Dependencia.Nombre == "VICERRECTORIA ACADEMICA" {
+					hijosFiltrados = append(hijosFiltrados, hijo)
+				}
+			}
+			org.Hijos = hijosFiltrados
+		} else {
+			org.Hijos = PodarOrganigramaAcademico(org.Hijos)
+		}
+	}
+	return organigrama
 }
 
 func PodarOrganigramaAdministrativo(organigrama []*models.Organigrama) []*models.Organigrama {
 	for _, org := range organigrama {
-        if org.Dependencia.Nombre == "RECTORIA" {
-            var hijosFiltrados []*models.Organigrama
-            for _, hijo := range org.Hijos {
-                if hijo.Dependencia.Nombre != "VICERRECTORIA ACADEMICA"{
-                    hijosFiltrados = append(hijosFiltrados, hijo)
-                }
-            }
-            org.Hijos = hijosFiltrados
-        } else {
-            org.Hijos = PodarOrganigramaAdministrativo(org.Hijos)
-        }
-    }
-    return organigrama
+		if org.Dependencia.Nombre == "RECTORIA" {
+			var hijosFiltrados []*models.Organigrama
+			for _, hijo := range org.Hijos {
+				if hijo.Dependencia.Nombre != "VICERRECTORIA ACADEMICA" {
+					hijosFiltrados = append(hijosFiltrados, hijo)
+				}
+			}
+			org.Hijos = hijosFiltrados
+		} else {
+			org.Hijos = PodarOrganigramaAdministrativo(org.Hijos)
+		}
+	}
+	return organigrama
 }
