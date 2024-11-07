@@ -11,9 +11,9 @@ import (
 	"github.com/udistrital/utils_oas/time_bogota"
 )
 
-const rutaUno = "dependencia?query=Id:"
-const rutaDos = "dependencia/"
-const rutaTres = "dependencia_tipo_dependencia/"
+const dependenciaQuery = "dependencia?query=Id:"
+const dependencia = "dependencia/"
+const dependenciaTipoDependencia = "dependencia_tipo_dependencia/"
 
 func BuscarDependencia(transaccion *models.BusquedaDependencia) (resultadoBusqueda []models.RespuestaBusquedaDependencia, outputError map[string]interface{}) {
 	defer func() {
@@ -58,7 +58,7 @@ func BuscarDependencia(transaccion *models.BusquedaDependencia) (resultadoBusque
 
 	if transaccion.FacultadId != 0 {
 		var dependenciasxNombre []models.Dependencia
-		url := beego.AppConfig.String("OikosCrudUrl") + rutaUno + strconv.Itoa(transaccion.FacultadId)
+		url := beego.AppConfig.String("OikosCrudUrl") + dependenciaQuery + strconv.Itoa(transaccion.FacultadId)
 		if err := request.GetJson(url, &dependenciasxNombre); err != nil {
 			logs.Error(err)
 			panic(err.Error())
@@ -74,7 +74,7 @@ func BuscarDependencia(transaccion *models.BusquedaDependencia) (resultadoBusque
 
 	if transaccion.VicerrectoriaId != 0 {
 		var dependenciasxNombre []models.Dependencia
-		url := beego.AppConfig.String("OikosCrudUrl") + rutaUno + strconv.Itoa(transaccion.VicerrectoriaId)
+		url := beego.AppConfig.String("OikosCrudUrl") + dependenciaQuery + strconv.Itoa(transaccion.VicerrectoriaId)
 		if err := request.GetJson(url, &dependenciasxNombre); err != nil {
 			logs.Error(err)
 			panic(err.Error())
@@ -114,7 +114,7 @@ func CrearRespuestaBusqueda(dependencia models.Dependencia) models.RespuestaBusq
 
 	if len(dependencia.DependenciaTipoDependencia) == 0 {
 		var dependenciaAux []models.Dependencia
-		url := beego.AppConfig.String("OikosCrudUrl") + rutaUno + strconv.Itoa(dependencia.Id)
+		url := beego.AppConfig.String("OikosCrudUrl") + dependenciaQuery + strconv.Itoa(dependencia.Id)
 		if err := request.GetJson(url, &dependenciaAux); err != nil {
 			logs.Error(err)
 			panic(err.Error())
@@ -164,7 +164,7 @@ func EditarDependencia(transaccion *models.EditarDependencia) (alerta []string, 
 	}()
 	alerta = append(alerta, "Success")
 	var dependencia models.Dependencia
-	url := beego.AppConfig.String("OikosCrudUrl") + rutaDos + strconv.Itoa(transaccion.DependenciaId)
+	url := beego.AppConfig.String("OikosCrudUrl") + dependencia + strconv.Itoa(transaccion.DependenciaId)
 	if err := request.GetJson(url, &dependencia); err != nil || dependencia.Id == 0 {
 		logs.Error(err)
 		panic(err.Error())
@@ -186,7 +186,7 @@ func EditarDependencia(transaccion *models.EditarDependencia) (alerta []string, 
 		panic(err.Error())
 	}
 	var depedenciaPadreNueva models.Dependencia
-	url = beego.AppConfig.String("OikosCrudUrl") + rutaDos + strconv.Itoa(transaccion.DependenciaAsociadaId)
+	url = beego.AppConfig.String("OikosCrudUrl") + dependencia + strconv.Itoa(transaccion.DependenciaAsociadaId)
 	if err := request.GetJson(url, &depedenciaPadreNueva); err != nil {
 		logs.Error(err)
 		panic(err.Error())
@@ -199,7 +199,7 @@ func EditarDependencia(transaccion *models.EditarDependencia) (alerta []string, 
 	dependencia.TelefonoDependencia = transaccion.TelefonoDependencia
 	dependencia.FechaModificacion = time_bogota.TiempoBogotaFormato()
 	var err error
-	url = beego.AppConfig.String("OikosCrudUrl") + rutaDos + strconv.Itoa(transaccion.DependenciaId)
+	url = beego.AppConfig.String("OikosCrudUrl") + dependencia + strconv.Itoa(transaccion.DependenciaId)
 	var respuestaDependencia map[string]interface{}
 	if err = request.SendJson(url, "PUT", &respuestaDependencia, dependencia); err != nil {
 		logs.Error(err)
@@ -296,7 +296,7 @@ func ActualizarDependenciaTipoDependencia(tipo int, activo bool, dependenciaId i
 	dependenciaTipoDependenciaActual[0].Activo = activo
 	dependenciaTipoDependenciaActual[0].FechaModificacion = time_bogota.TiempoBogotaFormato()
 
-	url = beego.AppConfig.String("OikosCrudUrl") + rutaTres + strconv.Itoa(dependenciaTipoDependenciaActual[0].Id)
+	url = beego.AppConfig.String("OikosCrudUrl") + dependenciaTipoDependencia + strconv.Itoa(dependenciaTipoDependenciaActual[0].Id)
 	var res map[string]interface{}
 	if err := request.SendJson(url, "PUT", &res, dependenciaTipoDependenciaActual[0]); err != nil || res["Id"] == nil {
 		RollbackActualizacionTipoDependencia(dependeciaOriginal, tiposRegistrados,tiposOriginales)
@@ -318,7 +318,7 @@ func Contiene(slice []int, valor int) bool {
 
 func RollbackActualizacionTipoDependencia(dependeciaOriginal models.Dependencia, tiposRegistrados *[]int, TiposOriginales *[]models.DependenciaTipoDependencia){
 	for _, tipo := range *TiposOriginales{
-		url := beego.AppConfig.String("OikosCrudUrl") + rutaTres + strconv.Itoa(tipo.Id)
+		url := beego.AppConfig.String("OikosCrudUrl") + dependenciaTipoDependencia + strconv.Itoa(tipo.Id)
 		var res map[string]interface{}
 		if err := request.SendJson(url, "PUT", &res, tipo); err != nil {
 			logs.Error(err)
@@ -331,7 +331,7 @@ func RollbackActualizacionTipoDependencia(dependeciaOriginal models.Dependencia,
 func RollbackDependenciaTipoDependencia(dependeciaOriginal models.Dependencia,tiposRegistrados *[]int){
 	for _, tipo := range *tiposRegistrados{
 		var respuesta map[string]interface{}
-		url := beego.AppConfig.String("OikosCrudUrl") + rutaTres + strconv.Itoa(tipo)
+		url := beego.AppConfig.String("OikosCrudUrl") + dependenciaTipoDependencia + strconv.Itoa(tipo)
 		if err := request.SendJson(url,"DELETE",&respuesta,nil); err != nil{
 			panic("Rollback de dependencia tipo dependencia" + err.Error())
 		}
@@ -341,7 +341,7 @@ func RollbackDependenciaTipoDependencia(dependeciaOriginal models.Dependencia,ti
 
 func RollbackDependenciaOriginal(dependencia models.Dependencia) (outputError map[string]interface{}) {
 	var err error
-	url := beego.AppConfig.String("OikosCrudUrl") + rutaDos + strconv.Itoa(dependencia.Id)
+	url := beego.AppConfig.String("OikosCrudUrl") + dependencia + strconv.Itoa(dependencia.Id)
 	var respuestaDependencia map[string]interface{}
 	if err = request.SendJson(url, "PUT", &respuestaDependencia, dependencia); err != nil {
 		logs.Error(err)
