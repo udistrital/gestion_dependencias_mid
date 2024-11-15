@@ -69,15 +69,15 @@ func RegistrarDependencia(transaccion *models.NuevaDependencia) (alerta []string
 		}
 		creaciones.DependenciaTipoDependenciaId = append(creaciones.DependenciaTipoDependenciaId, int(resDependenciaTipoDependenciaRegistrada["Id"].(float64)))
 	}
-	var depedencia_padre models.DependenciaPadre
-	depedencia_padre.PadreId = &dependenciaAsociada
-	depedencia_padre.HijaId = &dependenciaNueva
-	depedencia_padre.Activo = true
-	depedencia_padre.FechaCreacion = time_bogota.TiempoBogotaFormato()
-	depedencia_padre.FechaModificacion = time_bogota.TiempoBogotaFormato()
+	var depedenciaPadre models.DependenciaPadre
+	depedenciaPadre.PadreId = &dependenciaAsociada
+	depedenciaPadre.HijaId = &dependenciaNueva
+	depedenciaPadre.Activo = true
+	depedenciaPadre.FechaCreacion = time_bogota.TiempoBogotaFormato()
+	depedenciaPadre.FechaModificacion = time_bogota.TiempoBogotaFormato()
 	url = beego.AppConfig.String("OikosCrudUrl") + "dependencia_padre"
 	var resDependenciaPadre map[string]interface{}
-	if err := request.SendJson(url, "POST", &resDependenciaPadre, depedencia_padre); err != nil {
+	if err := request.SendJson(url,"POST",&resDependenciaPadre,depedenciaPadre);err != nil{
 		RollbackDependenciaTipoDependenciaCreada(&creaciones)
 		logs.Error(err)
 		panic(err.Error())
