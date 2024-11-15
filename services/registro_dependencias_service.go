@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/astaxie/beego"
@@ -11,7 +10,7 @@ import (
 	"github.com/udistrital/utils_oas/time_bogota"
 )
 
-func RegistrarDependencia(transaccion *models.NuevaDependencia) (alerta []string, outputError map[string]interface{}){
+func RegistrarDependencia(transaccion *models.NuevaDependencia) (alerta []string, outputError map[string]interface{}) {
 	defer func() {
 		if err := recover(); err != nil {
 			outputError = map[string]interface{}{"funcion": "RegistrarDependencia", "err": err, "status": "500"}
@@ -29,7 +28,7 @@ func RegistrarDependencia(transaccion *models.NuevaDependencia) (alerta []string
 
 	var dependenciaAsociada models.Dependencia
 	url := beego.AppConfig.String("OikosCrudUrl") + "dependencia/" + strconv.Itoa(transaccion.DependenciaAsociadaId)
-	if err := request.GetJson(url,&dependenciaAsociada); err != nil || dependenciaAsociada.Id == 0{
+	if err := request.GetJson(url, &dependenciaAsociada); err != nil || dependenciaAsociada.Id == 0 {
 		logs.Error(err)
 		panic(err.Error())
 	}
@@ -44,13 +43,13 @@ func RegistrarDependencia(transaccion *models.NuevaDependencia) (alerta []string
 	dependenciaNueva.FechaModificacion = time_bogota.TiempoBogotaFormato()
 	var resDependenciaRegistrada map[string]interface{}
 	url = beego.AppConfig.String("OikosCrudUrl") + "dependencia"
-	if err := request.SendJson(url,"POST",&resDependenciaRegistrada,dependenciaNueva); err != nil{
+	if err := request.SendJson(url, "POST", &resDependenciaRegistrada, dependenciaNueva); err != nil {
 		logs.Error(err)
 		panic(err.Error())
 	}
 	dependenciaNueva.Id = int(resDependenciaRegistrada["Id"].(float64))
-	creaciones.DependenciaId = 	int(resDependenciaRegistrada["Id"].(float64))
-	for _, tipoDependencia := range tiposDependencia{
+	creaciones.DependenciaId = int(resDependenciaRegistrada["Id"].(float64))
+	for _, tipoDependencia := range tiposDependencia {
 		var dependenciaTipoDependenciaNueva models.DependenciaTipoDependencia
 		dependenciaTipoDependenciaNueva.TipoDependenciaId = tipoDependencia
 		dependenciaTipoDependenciaNueva.DependenciaId = &dependenciaNueva
@@ -59,10 +58,10 @@ func RegistrarDependencia(transaccion *models.NuevaDependencia) (alerta []string
 		dependenciaTipoDependenciaNueva.FechaModificacion = time_bogota.TiempoBogotaFormato()
 		url = beego.AppConfig.String("OikosCrudUrl") + "dependencia_tipo_dependencia"
 		var resDependenciaTipoDependenciaRegistrada map[string]interface{}
-		if err := request.SendJson(url,"POST",&resDependenciaTipoDependenciaRegistrada,dependenciaTipoDependenciaNueva); err != nil{
-			if (len(creaciones.DependenciaTipoDependenciaId) >= 1){
+		if err := request.SendJson(url, "POST", &resDependenciaTipoDependenciaRegistrada, dependenciaTipoDependenciaNueva); err != nil {
+			if len(creaciones.DependenciaTipoDependenciaId) >= 1 {
 				RollbackDependenciaTipoDependenciaCreada(&creaciones)
-			}else{
+			} else {
 				RollbackDependenciaCreada(&creaciones)
 			}
 			logs.Error(err)
@@ -98,16 +97,16 @@ func RegistrarDependencia(transaccion *models.NuevaDependencia) (alerta []string
 // 	creaciones.DependenciaId = 298
 // 	creaciones.DependenciaTipoDependenciaId = append(creaciones.DependenciaTipoDependenciaId, 459)
 // 	creaciones.DependenciaTipoDependenciaId = append(creaciones.DependenciaTipoDependenciaId, 460)
-// 	creaciones.DependenciaTipoDependenciaId = append(creaciones.DependenciaTipoDependenciaId, 461)	
+// 	creaciones.DependenciaTipoDependenciaId = append(creaciones.DependenciaTipoDependenciaId, 461)
 // 	creaciones.DependenciaPadreId = 246
 // 	RollbackDependenciaPadreCreada(&creaciones)
 // 	alerta = append(alerta, "Success")
 // 	return alerta, outputError
 // }
 
-func VerificarExistenciaTipo(tipo int) (tipoDependencia models.TipoDependencia){
+func VerificarExistenciaTipo(tipo int) (tipoDependencia models.TipoDependencia) {
 	url := beego.AppConfig.String("OikosCrudUrl") + "tipo_dependencia/" + strconv.Itoa(tipo)
-	if err := request.GetJson(url,&tipoDependencia); err != nil || tipoDependencia.Id == 0{
+	if err := request.GetJson(url, &tipoDependencia); err != nil || tipoDependencia.Id == 0 {
 		logs.Error(err)
 		panic(err.Error())
 	}
@@ -117,18 +116,17 @@ func VerificarExistenciaTipo(tipo int) (tipoDependencia models.TipoDependencia){
 func RollbackDependenciaCreada(transaccion *models.Creaciones) (outputError map[string]interface{}) {
 	var respuesta map[string]interface{}
 	url := beego.AppConfig.String("OikosCrudUrl") + "dependencia/" + strconv.Itoa(transaccion.DependenciaId)
-	if err := request.SendJson(url,"DELETE",&respuesta,nil); err != nil{
+	if err := request.SendJson(url, "DELETE", &respuesta, nil); err != nil {
 		panic("Rollback de dependencia" + err.Error())
 	}
 	return nil
 }
 
-
 func RollbackDependenciaTipoDependenciaCreada(transaccion *models.Creaciones) (outputError map[string]interface{}) {
-	for _, tipo := range transaccion.DependenciaTipoDependenciaId{
+	for _, tipo := range transaccion.DependenciaTipoDependenciaId {
 		var respuesta map[string]interface{}
 		url := beego.AppConfig.String("OikosCrudUrl") + "dependencia_tipo_dependencia/" + strconv.Itoa(tipo)
-		if err := request.SendJson(url,"DELETE",&respuesta,nil); err != nil{
+		if err := request.SendJson(url, "DELETE", &respuesta, nil); err != nil {
 			panic("Rollback de dependencia tipo dependencia" + err.Error())
 		}
 	}
@@ -140,7 +138,7 @@ func RollbackDependenciaTipoDependenciaCreada(transaccion *models.Creaciones) (o
 func RollbackDependenciaPadreCreada(transaccion *models.Creaciones) (outputError map[string]interface{}) {
 	var respuesta map[string]interface{}
 	url := beego.AppConfig.String("OikosCrudUrl") + "dependencia_padre/" + strconv.Itoa(transaccion.DependenciaPadreId)
-	if err := request.SendJson(url,"DELETE",&respuesta,nil); err != nil{
+	if err := request.SendJson(url, "DELETE", &respuesta, nil); err != nil {
 		panic("Rollback de dependencia padre" + err.Error())
 	}
 	RollbackDependenciaTipoDependenciaCreada(transaccion)
