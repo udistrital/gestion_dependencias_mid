@@ -26,7 +26,7 @@ func (c *GestionDependenciasController) URLMapping(){
 // @Title BuscarDependencia
 // @Description Buscar dependencia
 // @Param	body		body 	{}	true		"body for Buscar Dependencia content"
-// @Success 201 {init} 
+// @Success 200 {init} 
 // @Failure 400 the request contains incorrect syntax
 // @router /BuscarDependencia [post]
 func (c *GestionDependenciasController) BuscarDependencia() {
@@ -40,8 +40,8 @@ func (c *GestionDependenciasController) BuscarDependencia() {
 
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
 		if resultado, err := services.BuscarDependencia(&v); err == nil {
-			c.Ctx.Output.SetStatus(201)
-			c.Data["json"] = map[string]interface{}{"Success": true, "Status": 201, "Message": "Resultado de busqueda", "Data": resultado}
+			c.Ctx.Output.SetStatus(200)
+			c.Data["json"] = map[string]interface{}{"Success": true, "Status": 200, "Message": "Resultado de busqueda", "Data": resultado}
 		} else {
 			panic(err)
 		}
@@ -55,7 +55,7 @@ func (c *GestionDependenciasController) BuscarDependencia() {
 // @Title EditarDependencia
 // @Description Editar dependencia
 // @Param	body		body 	{}	true		"body for Editar Dependencia content"
-// @Success 201 {init} 
+// @Success 200 {init} 
 // @Failure 400 the request contains incorrect syntax
 // @router /EditarDependencia [post]
 func (c *GestionDependenciasController) EditarDependencia() {
@@ -68,8 +68,8 @@ func (c *GestionDependenciasController) EditarDependencia() {
 
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
 		if resultado, err := services.EditarDependencia(&v); err == nil {
-			c.Ctx.Output.SetStatus(201)
-			c.Data["json"] = map[string]interface{}{"Success": true, "Status": 201, "Message": "Dependencia editada con exito", "Data": resultado}
+			c.Ctx.Output.SetStatus(200)
+			c.Data["json"] = map[string]interface{}{"Success": true, "Status": 200, "Message": "Dependencia editada con exito", "Data": resultado}
 		} else {
 			panic(err)
 		}
