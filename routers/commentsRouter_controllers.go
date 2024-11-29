@@ -5,12 +5,9 @@ import (
 	"github.com/astaxie/beego/context/param"
 )
 
-const controllerPathOne = "github.com/udistrital/gestion_dependencias_mid/controllers:GestionDependenciasController"
-const controllerPathTwo = "github.com/udistrital/gestion_dependencias_mid/controllers:RegistroDependenciasController"
-
 func init() {
 
-    beego.GlobalControllerRouter[controllerPathOne] = append(beego.GlobalControllerRouter[controllerPathOne],
+    beego.GlobalControllerRouter["github.com/udistrital/gestion_dependencias_mid/controllers:GestionDependenciasController"] = append(beego.GlobalControllerRouter["github.com/udistrital/gestion_dependencias_mid/controllers:GestionDependenciasController"],
         beego.ControllerComments{
             Method: "BuscarDependencia",
             Router: "/BuscarDependencia",
@@ -19,7 +16,7 @@ func init() {
             Filters: nil,
             Params: nil})
 
-    beego.GlobalControllerRouter[controllerPathOne] = append(beego.GlobalControllerRouter[controllerPathOne],
+    beego.GlobalControllerRouter["github.com/udistrital/gestion_dependencias_mid/controllers:GestionDependenciasController"] = append(beego.GlobalControllerRouter["github.com/udistrital/gestion_dependencias_mid/controllers:GestionDependenciasController"],
         beego.ControllerComments{
             Method: "EditarDependencia",
             Router: "/EditarDependencia",
@@ -28,7 +25,7 @@ func init() {
             Filters: nil,
             Params: nil})
 
-    beego.GlobalControllerRouter[controllerPathOne] = append(beego.GlobalControllerRouter[controllerPathOne],
+    beego.GlobalControllerRouter["github.com/udistrital/gestion_dependencias_mid/controllers:GestionDependenciasController"] = append(beego.GlobalControllerRouter["github.com/udistrital/gestion_dependencias_mid/controllers:GestionDependenciasController"],
         beego.ControllerComments{
             Method: "Organigramas",
             Router: "/Organigramas",
@@ -37,7 +34,7 @@ func init() {
             Filters: nil,
             Params: nil})
 
-    beego.GlobalControllerRouter[controllerPathTwo] = append(beego.GlobalControllerRouter[controllerPathTwo],
+    beego.GlobalControllerRouter["github.com/udistrital/gestion_dependencias_mid/controllers:RegistroDependenciasController"] = append(beego.GlobalControllerRouter["github.com/udistrital/gestion_dependencias_mid/controllers:RegistroDependenciasController"],
         beego.ControllerComments{
             Method: "RegistrarDependencia",
             Router: "/RegistrarDependencia",
