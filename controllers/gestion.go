@@ -3,7 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-
+	errorctrl "github.com/udistrital/utils_oas/errorctrlPrueba"
 	"github.com/astaxie/beego"
 	"github.com/udistrital/gestion_dependencias_mid/helpers"
 	"github.com/udistrital/gestion_dependencias_mid/models"
@@ -30,8 +30,8 @@ func (c *GestionDependenciasController) URLMapping(){
 // @Failure 400 the request contains incorrect syntax
 // @router /BuscarDependencia [post]
 func (c *GestionDependenciasController) BuscarDependencia() {
-	defer helpers.ErrorController(c.Controller,"BuscarDependencia")
-
+	defer errorctrl.ErrorControlController(c.Controller,"BuscarDependencia")
+	//defer helpers.ErrorController(c.Controller,"BuscarDependencia")
 	if v, e := helpers.ValidarBody(c.Ctx.Input.RequestBody); !v || e != nil {
 		panic(map[string]interface{}{"funcion": "BuscarDependencia", "err": helpers.ErrorBody, "status": "400"})
 	}
