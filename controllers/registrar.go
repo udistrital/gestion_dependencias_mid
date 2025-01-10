@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	errorctrl "github.com/udistrital/utils_oas/errorctrl"
 	"github.com/astaxie/beego"
 	"github.com/udistrital/gestion_dependencias_mid/helpers"
 	"github.com/udistrital/gestion_dependencias_mid/models"
@@ -26,8 +27,7 @@ func (c *RegistroDependenciasController) URLMapping(){
 // @Failure 400 the request contains incorrect syntax
 // @router /RegistrarDependencia [post]
 func (c *RegistroDependenciasController) RegistrarDependencia() {
-	defer helpers.ErrorController(c.Controller,"RegistrarDependencia")
-
+	defer errorctrl.ErrorControlController(c.Controller,"RegistrarDependencia")
 	if v, e := helpers.ValidarBody(c.Ctx.Input.RequestBody); !v || e != nil {
 		panic(map[string]interface{}{"funcion": "RegistrarDependencia", "err": helpers.ErrorBody, "status": "400"})
 	}
