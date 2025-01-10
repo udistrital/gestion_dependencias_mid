@@ -36,6 +36,5 @@ func main() {
 	beego.ErrorController(&customerrorv2.CustomErrorController{})
 	apistatus.Init()
 	auditoria.InitMiddleware()
-	auditoria.InitInterceptor()
 	beego.Run()
 }
