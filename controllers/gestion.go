@@ -3,7 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-
+	errorctrl "github.com/udistrital/utils_oas/errorctrl"
 	"github.com/astaxie/beego"
 	"github.com/udistrital/gestion_dependencias_mid/helpers"
 	"github.com/udistrital/gestion_dependencias_mid/models"
@@ -30,7 +30,7 @@ func (c *GestionDependenciasController) URLMapping(){
 // @Failure 400 the request contains incorrect syntax
 // @router /BuscarDependencia [post]
 func (c *GestionDependenciasController) BuscarDependencia() {
-	defer helpers.ErrorController(c.Controller,"BuscarDependencia")
+	defer errorctrl.ErrorControlController(c.Controller,"BuscarDependencia")
 
 	if v, e := helpers.ValidarBody(c.Ctx.Input.RequestBody); !v || e != nil {
 		panic(map[string]interface{}{"funcion": "BuscarDependencia", "err": helpers.ErrorBody, "status": "400"})
@@ -59,8 +59,7 @@ func (c *GestionDependenciasController) BuscarDependencia() {
 // @Failure 400 the request contains incorrect syntax
 // @router /EditarDependencia [post]
 func (c *GestionDependenciasController) EditarDependencia() {
-	defer helpers.ErrorController(c.Controller,"EditarDependencia")
-
+	defer errorctrl.ErrorControlController(c.Controller,"EditarDependencia")
 	if v, e := helpers.ValidarBody(c.Ctx.Input.RequestBody); !v || e != nil {
 		panic(map[string]interface{}{"funcion": "EditarDependencia", "err": helpers.ErrorBody, "status": "400"})
 	}
@@ -88,8 +87,7 @@ func (c *GestionDependenciasController) EditarDependencia() {
 // @router /Organigramas [get]
 func (c *GestionDependenciasController) Organigramas() {
 	fmt.Println("Entra a organigramas")
-	defer helpers.ErrorController(c.Controller,"Organigramas")
-
+	defer errorctrl.ErrorControlController(c.Controller,"Organigramas")
 
 	if organigramas, err := services.Organigramas(); err == nil {
 		c.Ctx.Output.SetStatus(200)
