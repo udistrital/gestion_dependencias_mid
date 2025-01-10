@@ -1,5 +1,4 @@
-FROM python:3
-RUN pip3 install awscli --no-build-isolation
+FROM amazon/aws-cli:latest
 WORKDIR /
 COPY entrypoint.sh entrypoint.sh
 COPY main main
